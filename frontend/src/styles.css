@@ -1,0 +1,60 @@
+:root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #e7edf4; background: #101419; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 1100px; background: #101419; }
+button, input, textarea, select { font: inherit; }
+button { border: 1px solid #394654; background: #1a232d; color: #e7edf4; padding: 7px 11px; border-radius: 5px; cursor: pointer; font-size: 13px; }
+button:hover { background: #263342; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.app-shell { min-height: 100vh; padding: 20px 28px; }
+.topbar { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 16px; }
+.eyebrow { color: #7e9db8; letter-spacing: .12em; font-size: 11px; font-weight: 600; }
+h1 { margin: 3px 0 0; font-size: 24px; font-weight: 650; }
+.status { color: #98a9b8; font-size: 13px; background: #16202a; padding: 5px 12px; border-radius: 4px; border: 1px solid #283747; }
+.panel { border: 1px solid #293541; background: #151c23; border-radius: 7px; }
+.setup { display: flex; justify-content: space-between; gap: 20px; padding: 14px; margin-bottom: 14px; }
+.setup > div:first-child { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; }
+label { display: grid; gap: 4px; color: #8ea2b4; font-size: 12px; }
+input, textarea, select { border: 1px solid #34424f; background: #0f151b; color: #e7edf4; border-radius: 4px; padding: 7px 9px; outline: none; }
+input:focus, textarea:focus, select:focus { border-color: #6e9dc3; }
+.setup textarea { min-height: 36px; resize: vertical; }
+.actions { display: flex; gap: 6px; align-items: center; }
+.primary { background: #32678f; border-color: #4b84ae; }
+
+.workspace { display: grid; grid-template-columns: 280px minmax(500px, 1fr) 280px; gap: 14px; min-height: calc(100vh - 200px); }
+.sidebar, .review, .editor { overflow: hidden; display: flex; flex-direction: column; }
+.panel-title { min-height: 50px; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #293541; font-size: 13px; font-weight: 600; background: #12181f; }
+.muted { color: #718293; font-weight: 400; font-size: 12px; }
+
+/* Tree components */
+.tree-top-actions { display: flex; gap: 6px; }
+.tree-container { flex: 1; overflow-y: auto; padding: 8px 0; }
+.tree-volume { margin-bottom: 8px; border-bottom: 1px solid #1e2933; padding-bottom: 6px; }
+.volume-header { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; color: #8eb1ce; font-size: 13px; }
+.tree-chapter { margin-left: 8px; border-left: 2px solid #263544; }
+.chapter-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; cursor: pointer; border-radius: 4px; margin: 2px 4px; font-size: 13px; }
+.chapter-item:hover { background: #1b2632; }
+.chapter-item.active { background: #223447; color: #7cb8eb; }
+.tree-scene { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px 5px 22px; cursor: pointer; border-radius: 4px; margin: 1px 4px; font-size: 12.5px; color: #c4d4e3; }
+.tree-scene:hover { background: #1c2836; }
+.tree-scene.active { background: #243e57; color: #8cd0ff; font-weight: 500; }
+.mini-btn { padding: 2px 6px; font-size: 11px; border-radius: 3px; background: #212c38; }
+
+/* Badges & Tags */
+.badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: #283747; color: #94b0ca; }
+.badge-small { font-size: 9.5px; padding: 1px 4px; border-radius: 3px; background: #1c2733; color: #7f99b1; }
+.scene-meta { display: flex; flex-direction: column; gap: 4px; }
+.scene-tags { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+.tag { background: #1e2c3a; padding: 2px 6px; border-radius: 3px; color: #8faec9; }
+.status-select { font-size: 11px; padding: 2px 6px; height: 24px; }
+
+/* Editor & Contracts */
+.editor-area { flex: 1; resize: none; border: 0; border-radius: 0; padding: 20px; line-height: 1.8; min-height: 480px; font-size: 15px; }
+.revision-banner { background: #2b3947; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #ffca65; border-bottom: 1px solid #3d4f61; }
+.contracts-view, .revisions-list, .chapter-control-panel { flex: 1; overflow-y: auto; padding: 16px; font-size: 13px; }
+.contracts-view h3 { margin: 12px 0 6px; font-size: 14px; color: #7eb4df; }
+.contracts-view pre, .code-box { background: #0c1116; padding: 12px; border-radius: 5px; border: 1px solid #23303d; font-family: monospace; font-size: 12px; color: #9ec1e0; overflow-x: auto; white-space: pre-wrap; }
+.revision-card { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #23303d; }
+.code-text { font-family: monospace; font-size: 11px; }
+.field-group { margin-bottom: 14px; }
+.field-group label { margin-bottom: 4px; font-weight: 500; }
+.empty { color: #718293; padding: 15px; font-size: 13px; text-align: center; }
