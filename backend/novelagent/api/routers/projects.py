@@ -5,18 +5,27 @@ from typing import Any
 from fastapi import APIRouter, Depends
 
 from ..dependencies import AppState, require_session
-from ..schemas import ImportRequest, ProjectOpen, ReorderRequest, VolumeCreate, VolumeUpdate
+from ..schemas import (
+    ImportRequest,
+    ProjectOpen,
+    ProjectTreeView,
+    ProjectView,
+    ReorderRequest,
+    VolumeCreate,
+    VolumeUpdate,
+    VolumeView,
+)
 from ...application.services import import_service, project_service
 
 router = APIRouter(tags=["Projects"])
 
 
-@router.post("/api/projects/open")
+@router.post("/api/projects/open", response_model=ProjectView)
 def open_project(payload: ProjectOpen, state: AppState = Depends(require_session)) -> dict[str, Any]:
     return project_service.open_or_create_project(state, payload.path)
 
 
-@router.get("/api/projects/current")
+@router.get("/api/projects/current", response_model=ProjectView)
 def current_project(state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
@@ -24,7 +33,7 @@ def current_project(state: AppState = Depends(require_session)) -> dict[str, Any
         return {"id": project.id, "name": project.name, "path": project.path}
 
 
-@router.get("/api/projects/current/tree")
+@router.get("/api/projects/current/tree", response_model=ProjectTreeView)
 def get_project_tree(state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
@@ -32,7 +41,7 @@ def get_project_tree(state: AppState = Depends(require_session)) -> dict[str, An
         return project_service.build_project_tree(db, project.id)
 
 
-@router.get("/api/projects/current/volumes")
+@router.get("/api/projects/current/volumes", response_model=list[VolumeView])
 def get_volumes(state: AppState = Depends(require_session)) -> list[dict[str, Any]]:
     _, factory = state.require_project()
     with factory() as db:
@@ -51,7 +60,7 @@ def get_volumes(state: AppState = Depends(require_session)) -> list[dict[str, An
         ]
 
 
-@router.post("/api/projects/current/volumes")
+@router.post("/api/projects/current/volumes", response_model=VolumeView)
 def create_volume(payload: VolumeCreate, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
@@ -67,7 +76,7 @@ def create_volume(payload: VolumeCreate, state: AppState = Depends(require_sessi
         }
 
 
-@router.put("/api/volumes/{volume_id}")
+@router.put("/api/volumes/{volume_id}", response_model=VolumeView)
 def update_volume(volume_id: int, payload: VolumeUpdate, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
@@ -103,9 +112,9 @@ def reorder(payload: ReorderRequest, state: AppState = Depends(require_session))
 
 @router.post("/api/projects/current/import")
 def import_project(payload: ImportRequest, state: AppState = Depends(require_session)) -> dict[str, Any]:
-    _, factory = state.require_project()
+    project_dir, factory = state.require_project()
     with factory() as db:
         project = project_service.get_current_project(db)
         return import_service.run_project_import(
-            db, project.id, payload.source_path, state.authorized_dirs | state.history_dirs
+            db, project.id, project_dir, payload.source_path, state.authorized_dirs | state.history_dirs
         )

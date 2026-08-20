@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .dependencies import AppState
-from .routers import chapters, projects, scenes, system
+from .routers import chapters, claims, generation, knowledge, projects, scenes, system
 from ..config import Settings
 
 
@@ -30,6 +30,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(projects.router)
     app.include_router(chapters.router)
     app.include_router(scenes.router)
+    app.include_router(claims.router)
+    app.include_router(generation.router)
+    app.include_router(knowledge.router)
 
     # Static assets mounting for frontend production build
     dist_dir = Path(__file__).parent.parent.parent.parent / "frontend" / "dist"

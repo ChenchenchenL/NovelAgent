@@ -1,45 +1,26 @@
 from __future__ import annotations
 
-import asyncio
-from typing import Any, AsyncIterator
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import StreamingResponse
-from sqlalchemy import select
+from fastapi import APIRouter, Depends
 
-from ..dependencies import (
-    AppState,
-    append_event,
-    get_app_state,
-    get_scene_content,
-    require_session,
-)
+from ..dependencies import AppState, get_scene_content, require_session
 from ..schemas import (
-    ClaimDecision,
-    GenerateRequest,
     PatchCreate,
+    RevisionView,
     SceneCreate,
     SceneEntryContractUpdate,
     SceneExitStateUpdate,
     SceneStatusUpdate,
     SceneUpdate,
+    SceneView,
 )
 from ...application.services import project_service, scene_service
-from ...domain.models import (
-    CanonClaim,
-    ClaimCandidate,
-    GenerationRun,
-    ItemEntity,
-    ModelInvocation,
-    ShadowEntity,
-)
-from ...infrastructure.fsck import check_project
-from ...integrations.extraction import extract_candidates
 
 router = APIRouter(tags=["Scenes"])
 
 
-@router.post("/api/chapters/{chapter_id}/scenes")
+@router.post("/api/chapters/{chapter_id}/scenes", response_model=SceneView)
 def create_scene(chapter_id: int, payload: SceneCreate, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
@@ -67,7 +48,7 @@ def create_scene(chapter_id: int, payload: SceneCreate, state: AppState = Depend
         }
 
 
-@router.get("/api/scenes/{scene_id}")
+@router.get("/api/scenes/{scene_id}", response_model=SceneView)
 def get_scene(scene_id: int, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
@@ -87,7 +68,7 @@ def get_scene(scene_id: int, state: AppState = Depends(require_session)) -> dict
         }
 
 
-@router.put("/api/scenes/{scene_id}")
+@router.put("/api/scenes/{scene_id}", response_model=SceneView)
 def update_scene(scene_id: int, payload: SceneUpdate, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
@@ -137,7 +118,7 @@ def accept_revision(scene_id: int, revision_id: int, state: AppState = Depends(r
         return {"scene_id": scene.id, "revision_id": revision.id, "status": scene.status}
 
 
-@router.get("/api/scenes/{scene_id}/revisions")
+@router.get("/api/scenes/{scene_id}/revisions", response_model=list[RevisionView])
 def list_revisions(scene_id: int, state: AppState = Depends(require_session)) -> list[dict[str, Any]]:
     _, factory = state.require_project()
     with factory() as db:
@@ -155,7 +136,7 @@ def list_revisions(scene_id: int, state: AppState = Depends(require_session)) ->
         ]
 
 
-@router.get("/api/scenes/{scene_id}/revisions/{revision_id}")
+@router.get("/api/scenes/{scene_id}/revisions/{revision_id}", response_model=RevisionView)
 def get_revision(scene_id: int, revision_id: int, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
@@ -193,171 +174,3 @@ def delete_scene(scene_id: int, state: AppState = Depends(require_session)) -> d
     with factory() as db:
         deleted_id = scene_service.delete_scene(db, scene_id)
         return {"status": "ok", "deleted_scene_id": deleted_id}
-
-
-@router.post("/api/scenes/{scene_id}/extract")
-def extract(scene_id: int, state: AppState = Depends(require_session)) -> list[dict[str, Any]]:
-    _, factory = state.require_project()
-    with factory() as db:
-        scene = scene_service.get_scene(db, scene_id)
-        candidates = extract_candidates(get_scene_content(db, scene), aliases=set())
-        created: list[ClaimCandidate] = []
-        for c in candidates:
-            row = ClaimCandidate(
-                scene_id=scene.id,
-                subject=c.subject,
-                predicate=c.predicate,
-                object_value=c.object_value,
-                modality=c.modality,
-                source_start=c.source_start,
-                source_end=c.source_end,
-                source_text=c.source_text,
-                confidence=c.confidence,
-                entity_confidence=c.entity_confidence,
-                status=c.status,
-            )
-            db.add(row)
-            created.append(row)
-        db.commit()
-        return [
-            {
-                "id": r.id,
-                "subject": r.subject,
-                "predicate": r.predicate,
-                "object_value": r.object_value,
-                "modality": r.modality,
-                "source_start": r.source_start,
-                "source_end": r.source_end,
-                "source_text": r.source_text,
-                "confidence": r.confidence,
-                "entity_confidence": r.entity_confidence,
-                "status": r.status,
-            }
-            for r in created
-        ]
-
-
-@router.get("/api/scenes/{scene_id}/claims")
-def list_claims(scene_id: int, state: AppState = Depends(require_session)) -> list[dict[str, Any]]:
-    _, factory = state.require_project()
-    with factory() as db:
-        rows = db.scalars(
-            select(ClaimCandidate).where(ClaimCandidate.scene_id == scene_id).order_by(ClaimCandidate.id.desc())
-        ).all()
-        return [
-            {
-                "id": r.id,
-                "subject": r.subject,
-                "predicate": r.predicate,
-                "object_value": r.object_value,
-                "modality": r.modality,
-                "source_start": r.source_start,
-                "source_end": r.source_end,
-                "source_text": r.source_text,
-                "confidence": r.confidence,
-                "entity_confidence": r.entity_confidence,
-                "status": r.status,
-            }
-            for r in rows
-        ]
-
-
-@router.post("/api/claims/{claim_id}/decision")
-def decide_claim(claim_id: int, payload: ClaimDecision, state: AppState = Depends(require_session)) -> dict[str, Any]:
-    _, factory = state.require_project()
-    with factory() as db:
-        claim = db.get(ClaimCandidate, claim_id)
-        if not claim:
-            raise HTTPException(status_code=404, detail="候选不存在")
-        if payload.decision == "CONFIRM":
-            claim.status = "CONFIRMED"
-            project = project_service.get_current_project(db)
-            canon = CanonClaim(
-                project_id=project.id,
-                subject=claim.subject,
-                predicate=claim.predicate,
-                object_value=claim.object_value,
-                modality=claim.modality,
-                source_scene_id=claim.scene_id,
-                source_start=claim.source_start,
-                source_end=claim.source_end,
-                confirmed=True,
-            )
-            db.add(canon)
-        elif payload.decision == "REJECT":
-            claim.status = "REJECTED"
-        else:
-            claim.status = "DEFERRED"
-        db.commit()
-        return {"id": claim.id, "status": claim.status}
-
-
-@router.post("/api/scenes/{scene_id}/generate")
-async def generate(scene_id: int, payload: GenerateRequest, state: AppState = Depends(require_session)) -> dict[str, Any]:
-    _, factory = state.require_project()
-    with factory() as db:
-        scene = scene_service.get_scene(db, scene_id)
-        run = GenerationRun(scene_id=scene.id, prompt=payload.instruction, status="RUNNING")
-        invocation = ModelInvocation(
-            task_type="scene_generation",
-            tier=payload.tier,
-            model=state.model_config.models.get(payload.tier, "adapter-mock"),
-            status="RUNNING",
-        )
-        db.add(run)
-        db.add(invocation)
-        db.commit()
-        db.refresh(run)
-
-    append_event(state, run.id, "started", f"Run #{run.id} started on tier {payload.tier}")
-
-    async def _runner() -> None:
-        await asyncio.sleep(0.05)
-        append_event(state, run.id, "delta", "【Agent 生成片段】林舟按住剑柄，缓步推开客栈后门。")
-        append_event(state, run.id, "completed", "生成完成")
-
-    asyncio.create_task(_runner())
-    return {"run_id": run.id, "status": "RUNNING"}
-
-
-@router.get("/api/generation-runs/{run_id}/events")
-async def generation_events(run_id: int, state: AppState = Depends(get_app_state)) -> StreamingResponse:
-    async def _stream() -> AsyncIterator[str]:
-        cursor = 0
-        while True:
-            with state.event_lock:
-                current_events = list(state.events.get(run_id, []))
-            while cursor < len(current_events):
-                ev = current_events[cursor]
-                cursor += 1
-                yield f"event: {ev['event']}\ndata: {ev['data']}\n\n"
-                if ev["event"] in {"completed", "failed"}:
-                    return
-            await asyncio.sleep(0.1)
-
-    return StreamingResponse(_stream(), media_type="text/event-stream")
-
-
-@router.get("/api/items")
-def list_items(state: AppState = Depends(require_session)) -> list[dict[str, Any]]:
-    _, factory = state.require_project()
-    with factory() as db:
-        project = project_service.get_current_project(db)
-        items = db.scalars(select(ItemEntity).where(ItemEntity.project_id == project.id)).all()
-        return [{"id": i.id, "name": i.name, "current_holder": i.current_holder, "state": i.current_state} for i in items]
-
-
-@router.get("/api/shadow-entities")
-def list_shadow_entities(state: AppState = Depends(require_session)) -> list[dict[str, Any]]:
-    _, factory = state.require_project()
-    with factory() as db:
-        project = project_service.get_current_project(db)
-        entities = db.scalars(select(ShadowEntity).where(ShadowEntity.project_id == project.id)).all()
-        return [{"id": s.id, "name": s.display_name, "canonical": s.canonical_character} for s in entities]
-
-
-@router.post("/api/fsck")
-def run_fsck(state: AppState = Depends(require_session)) -> dict[str, Any]:
-    project_dir, factory = state.require_project()
-    with factory() as session:
-        return check_project(project_dir, session)

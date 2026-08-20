@@ -50,7 +50,10 @@ class Scene(Base):
     sequence: Mapped[int] = mapped_column(Integer, default=1)
     pov: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     location: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    current_revision_id: Mapped[Optional[int]] = mapped_column(nullable=True)
+    current_revision_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("scene_revisions.id", ondelete="SET NULL", use_alter=True, name="fk_scenes_current_revision_id"),
+        nullable=True,
+    )
     status: Mapped[str] = mapped_column(String(32), default="PLANNED")
     entry_contract: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     exit_state: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)

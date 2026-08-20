@@ -32,6 +32,7 @@ export function SceneEditor({
                 <option value="PLANNED">PLANNED</option>
                 <option value="WRITING">WRITING</option>
                 <option value="PARTIALLY_ACCEPTED">PARTIALLY_ACCEPTED</option>
+                <option value="EXTRACTION_PENDING">EXTRACTION_PENDING</option>
                 <option value="SCENE_ACCEPTED">SCENE_ACCEPTED</option>
               </select>
             </div>

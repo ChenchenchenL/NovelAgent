@@ -214,3 +214,51 @@ def test_project_tree_api(client):
     tree = tree_res.json()
     assert "volumes" in tree
     assert "unassigned_chapters" in tree
+
+
+def test_import_creates_files_and_journal_for_fsck(client, tmp_path):
+    c, project_dir = client
+    import_source = tmp_path / "import_source"
+    import_source.mkdir()
+    (import_source / "01.md").write_text("第一章导入正文内容", encoding="utf-8")
+
+    # Authorize directory
+    auth_res = c.post("/api/workspaces/select-directory", json={"current_path": str(project_dir), "history_paths": [str(import_source)]})
+    assert auth_res.status_code == 200
+
+    # Import
+    imp_res = c.post("/api/projects/current/import", json={"source_path": str(import_source)})
+    assert imp_res.status_code == 200
+    assert imp_res.json()["files"] == 1
+
+    # Verify fsck passes on imported files
+    _, factory = c.app.state.novelagent.require_project()
+    with factory() as session:
+        fsck_res = check_project(project_dir, session)
+        assert fsck_res["ok"] is True
+        assert len(fsck_res["errors"]) == 0
+
+
+def test_scene_revision_foreign_key(client):
+    from novelagent.domain.models import Scene, SceneRevision
+    c, _ = client
+    _, factory = c.app.state.novelagent.require_project()
+    with factory() as session:
+        ch_res = c.post("/api/projects/current/chapters", json={"title": "外键测试章"})
+        ch_id = ch_res.json()["id"]
+        sc_res = c.post(f"/api/chapters/{ch_id}/scenes", json={"title": "外键测试场景"})
+        sc_id = sc_res.json()["id"]
+
+        patch_res = c.post(f"/api/scenes/{sc_id}/patches", json={"content": "版本内容"})
+        rev_id = patch_res.json()["revision_id"]
+        c.post(f"/api/scenes/{sc_id}/revisions/{rev_id}/accept")
+
+        scene = session.get(Scene, sc_id)
+        assert scene.current_revision_id == rev_id
+
+        # Delete the revision and verify current_revision_id is set to None
+        rev = session.get(SceneRevision, rev_id)
+        session.delete(rev)
+        session.commit()
+        session.refresh(scene)
+        assert scene.current_revision_id is None

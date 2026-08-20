@@ -8,12 +8,13 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ...domain.models import Chapter, ImportJob, Project, Scene, SceneRevision
+from ...domain.models import Chapter, CommitJournal, ImportJob, Project, Scene, SceneRevision
 
 
 def run_project_import(
     session: Session,
     project_id: int,
+    project_dir: Path,
     raw_source_path: str,
     allowed_dirs: set[Path],
 ) -> dict[str, Any]:
@@ -77,6 +78,24 @@ def run_project_import(
             session.add(revision)
             session.flush()
             scene.current_revision_id = revision.id
+
+            # Write immutable Markdown version & CommitJournal
+            scene_dir = project_dir / ".novelagent" / "text" / "scenes" / f"scene-{scene.id}"
+            rev_file = scene_dir / f"rev-{revision.id}.md"
+            current_file = scene_dir / "current.md"
+
+            journal = CommitJournal(
+                revision_id=revision.id,
+                content_hash=revision.content_hash,
+                file_path=str(rev_file),
+                file_status="COMMITTED",
+            )
+            session.add(journal)
+
+            scene_dir.mkdir(parents=True, exist_ok=True)
+            rev_file.write_text(revision.content, encoding="utf-8")
+            current_file.write_text(revision.content, encoding="utf-8")
+
             imported.append({"chapter_id": chapter.id, "scene_id": scene.id, "source": str(file_path)})
 
         job.checkpoint = index + 1

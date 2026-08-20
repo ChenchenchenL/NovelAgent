@@ -5,13 +5,19 @@ from typing import Any
 from fastapi import APIRouter, Depends
 
 from ..dependencies import AppState, get_scene_content, require_session
-from ..schemas import ChapterCreate, ChapterStatusUpdate, ChapterUpdate
+from ..schemas import (
+    ChapterCreate,
+    ChapterDetailView,
+    ChapterStatusUpdate,
+    ChapterUpdate,
+    ChapterView,
+)
 from ...application.services import chapter_service, project_service
 
 router = APIRouter(tags=["Chapters"])
 
 
-@router.get("/api/projects/current/chapters")
+@router.get("/api/projects/current/chapters", response_model=list[ChapterView])
 def list_chapters(state: AppState = Depends(require_session)) -> list[dict[str, Any]]:
     _, factory = state.require_project()
     with factory() as db:
@@ -31,7 +37,7 @@ def list_chapters(state: AppState = Depends(require_session)) -> list[dict[str, 
         ]
 
 
-@router.post("/api/projects/current/chapters")
+@router.post("/api/projects/current/chapters", response_model=ChapterView)
 def create_chapter(payload: ChapterCreate, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
@@ -55,7 +61,7 @@ def create_chapter(payload: ChapterCreate, state: AppState = Depends(require_ses
         }
 
 
-@router.get("/api/chapters/{chapter_id}")
+@router.get("/api/chapters/{chapter_id}", response_model=ChapterDetailView)
 def get_chapter(chapter_id: int, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
@@ -88,7 +94,7 @@ def get_chapter(chapter_id: int, state: AppState = Depends(require_session)) -> 
         }
 
 
-@router.put("/api/chapters/{chapter_id}")
+@router.put("/api/chapters/{chapter_id}", response_model=ChapterView)
 def update_chapter(chapter_id: int, payload: ChapterUpdate, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:

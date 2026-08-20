@@ -12,6 +12,7 @@ from ..dependencies import (
     require_session,
 )
 from ..schemas import DirectorySelection, ModelSettingsRequest
+from ...infrastructure.fsck import check_project
 from ...integrations.model_gateway import ModelConfig, ModelGateway
 
 router = APIRouter(tags=["System"])
@@ -78,3 +79,10 @@ def select_history(state: AppState = Depends(require_session)) -> dict[str, Any]
         raise HTTPException(status_code=400, detail="历史目录不存在")
     state.history_dirs.add(path)
     return {"path": str(path), "history_paths": [str(item) for item in sorted(state.history_dirs)]}
+
+
+@router.post("/api/fsck")
+def run_fsck(state: AppState = Depends(require_session)) -> dict[str, Any]:
+    project_dir, factory = state.require_project()
+    with factory() as session:
+        return check_project(project_dir, session)
