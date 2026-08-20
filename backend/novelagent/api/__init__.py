@@ -7,7 +7,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .dependencies import AppState
-from .routers import chapters, claims, generation, knowledge, projects, scenes, system
+from .routers import (
+    chapters,
+    claims,
+    generation,
+    knowledge,
+    patches,
+    projects,
+    scenes,
+    system,
+    workspaces,
+)
 from ..config import Settings
 
 
@@ -30,6 +40,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(projects.router)
     app.include_router(chapters.router)
     app.include_router(scenes.router)
+    app.include_router(workspaces.router)
+    app.include_router(patches.router)
     app.include_router(claims.router)
     app.include_router(generation.router)
     app.include_router(knowledge.router)

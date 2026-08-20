@@ -9,6 +9,14 @@ from sqlalchemy.orm import Session
 
 from ...domain.models import Chapter, CommitJournal, Scene, SceneRevision
 from ...domain.rules import validate_scene_status_transition
+from ...infrastructure.security import hash_text
+
+
+def _get_scene_content(session: Session, scene: Scene) -> str:
+    if not scene.current_revision_id:
+        return ""
+    rev = session.get(SceneRevision, scene.current_revision_id)
+    return rev.content if rev else ""
 
 
 def create_scene(
@@ -59,10 +67,8 @@ def update_scene(session: Session, scene_id: int, title: str | None, pov: str | 
 
 
 def change_scene_status(session: Session, scene_id: int, new_status: str) -> Scene:
-    from ...api.dependencies import get_scene_content
-
     scene = get_scene(session, scene_id)
-    content = get_scene_content(session, scene)
+    content = _get_scene_content(session, scene)
     try:
         validate_scene_status_transition(scene.status, new_status, has_content=bool(content))
     except ValueError as e:
@@ -79,8 +85,6 @@ def create_patch(
     content: str,
     source: str = "AUTHOR",
 ) -> SceneRevision:
-    from ...api.dependencies import hash_text
-
     scene = get_scene(session, scene_id)
     if base_revision_id != scene.current_revision_id:
         raise HTTPException(status_code=409, detail="场景基础版本已变化，请重新加载")
@@ -109,23 +113,26 @@ def accept_revision(session: Session, project_dir: Path, scene_id: int, revision
     scene.current_revision_id = revision.id
     scene.status = "SCENE_ACCEPTED"
 
-    # Immutable version file path: .novelagent/text/scenes/scene-{id}/rev-{id}.md
     scene_dir = project_dir / ".novelagent" / "text" / "scenes" / f"scene-{scene.id}"
     rev_file = scene_dir / f"rev-{revision.id}.md"
     current_file = scene_dir / "current.md"
 
+    # 2-Phase commit: record journal in PENDING state first
     journal = CommitJournal(
         revision_id=revision.id,
         content_hash=revision.content_hash,
         file_path=str(rev_file),
+        file_status="PENDING",
     )
     session.add(journal)
     session.commit()
 
+    # Write files to disk
     scene_dir.mkdir(parents=True, exist_ok=True)
     rev_file.write_text(revision.content, encoding="utf-8")
     current_file.write_text(revision.content, encoding="utf-8")
 
+    # Update journal to COMMITTED state
     journal.file_status = "COMMITTED"
     session.commit()
     return scene, revision

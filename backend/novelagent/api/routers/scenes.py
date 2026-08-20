@@ -130,6 +130,7 @@ def list_revisions(scene_id: int, state: AppState = Depends(require_session)) ->
                 "base_revision_id": r.base_revision_id,
                 "source": r.source,
                 "content_hash": r.content_hash,
+                "patch_info": r.patch_info,
                 "created_at": r.created_at.isoformat() if r.created_at else "",
             }
             for r in rows
@@ -148,6 +149,7 @@ def get_revision(scene_id: int, revision_id: int, state: AppState = Depends(requ
             "content": r.content,
             "source": r.source,
             "content_hash": r.content_hash,
+            "patch_info": r.patch_info,
             "created_at": r.created_at.isoformat() if r.created_at else "",
         }
 

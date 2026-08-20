@@ -9,6 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ...domain.models import Chapter, CommitJournal, ImportJob, Project, Scene, SceneRevision
+from ...infrastructure.security import hash_text, is_path_allowed
 
 
 def run_project_import(
@@ -18,8 +19,6 @@ def run_project_import(
     raw_source_path: str,
     allowed_dirs: set[Path],
 ) -> dict[str, Any]:
-    from ...api.dependencies import hash_text, is_path_allowed
-
     source = Path(raw_source_path).expanduser().resolve()
     if not source.is_dir() or not is_path_allowed(source, allowed_dirs):
         raise HTTPException(status_code=403, detail="导入目录未授权")
@@ -79,7 +78,7 @@ def run_project_import(
             session.flush()
             scene.current_revision_id = revision.id
 
-            # Write immutable Markdown version & CommitJournal
+            # Write immutable Markdown version with 2-Phase Commit
             scene_dir = project_dir / ".novelagent" / "text" / "scenes" / f"scene-{scene.id}"
             rev_file = scene_dir / f"rev-{revision.id}.md"
             current_file = scene_dir / "current.md"
@@ -88,14 +87,16 @@ def run_project_import(
                 revision_id=revision.id,
                 content_hash=revision.content_hash,
                 file_path=str(rev_file),
-                file_status="COMMITTED",
+                file_status="PENDING",
             )
             session.add(journal)
+            session.flush()
 
             scene_dir.mkdir(parents=True, exist_ok=True)
             rev_file.write_text(revision.content, encoding="utf-8")
             current_file.write_text(revision.content, encoding="utf-8")
 
+            journal.file_status = "COMMITTED"
             imported.append({"chapter_id": chapter.id, "scene_id": scene.id, "source": str(file_path)})
 
         job.checkpoint = index + 1

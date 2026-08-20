@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any, Optional
 
 
 @dataclass(frozen=True)
@@ -8,6 +9,28 @@ class ItemTransition:
     event_type: str
     from_holder: str | None
     to_holder: str | None
+
+
+@dataclass(frozen=True)
+class TextPatchData:
+    range_start: int
+    range_end: int
+    new_content: str = ""
+    base_revision_id: int | None = None
+    source: str = "AUTHOR"
+    intent: str = "edit"
+
+
+@dataclass(frozen=True)
+class WorkspaceUpdateData:
+    draft_content: str | None = None
+    cursor_position: int | None = None
+    selection_start: int | None = None
+    selection_end: int | None = None
+    undo_stack: list | None = None
+    redo_stack: list | None = None
+    auto_save_snapshot: dict | None = None
+    status: str | None = None
 
 
 ALLOWED_ITEM_EVENTS = {

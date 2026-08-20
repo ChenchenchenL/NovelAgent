@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import secrets
 import threading
 from pathlib import Path
@@ -9,6 +8,7 @@ from typing import TYPE_CHECKING
 from fastapi import HTTPException, Request
 
 from ..config.settings import Settings
+from ..infrastructure.security import hash_text, is_path_allowed
 from ..integrations.model_gateway import ModelConfig
 
 if TYPE_CHECKING:
@@ -64,15 +64,6 @@ def native_select_directory() -> str | None:
         return None
 
 
-def is_path_allowed(path: Path, allowed: set[Path]) -> bool:
-    resolved = path.resolve()
-    return any(resolved == root or root in resolved.parents for root in allowed)
-
-
-def hash_text(content: str) -> str:
-    return hashlib.sha256(content.encode("utf-8")).hexdigest()
-
-
 def get_scene_content(session: Session, scene: Scene) -> str:
     from ..domain.models import SceneRevision
 
@@ -85,3 +76,15 @@ def get_scene_content(session: Session, scene: Scene) -> str:
 def append_event(state: AppState, run_id: int, kind: str, payload: str) -> None:
     with state.event_lock:
         state.events.setdefault(run_id, []).append({"event": kind, "data": payload})
+
+
+__all__ = [
+    "AppState",
+    "append_event",
+    "get_app_state",
+    "get_scene_content",
+    "hash_text",
+    "is_path_allowed",
+    "native_select_directory",
+    "require_session",
+]

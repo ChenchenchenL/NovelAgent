@@ -9,21 +9,15 @@ from sqlalchemy.orm import Session
 
 from ...domain.models import Chapter, Project, Scene, Volume
 from ...infrastructure.db import make_session_factory
+from ...infrastructure.security import is_path_allowed
 
-if TYPE_CHECKING:
-    from ...api.dependencies import AppState
-
-
-def open_or_create_project(state: AppState, raw_path: str) -> dict[str, Any]:
-    from ...api.dependencies import is_path_allowed
-
+def open_or_create_project(settings: Any, authorized_dirs: set[Path], raw_path: str) -> tuple[dict[str, Any], Any, Any, Path]:
     path = Path(raw_path).expanduser().resolve()
-    if not path.is_dir() or not is_path_allowed(path, state.authorized_dirs):
+    if not path.is_dir() or not is_path_allowed(path, authorized_dirs):
         raise HTTPException(status_code=403, detail="目录未授权")
 
-    db_path = state.settings.db_path(path)
+    db_path = settings.db_path(path)
     engine, factory = make_session_factory(db_path)
-    state.engine, state.session_factory, state.project_dir = engine, factory, path
 
     with factory() as db:
         project = db.scalar(select(Project).where(Project.path == str(path)))
@@ -39,7 +33,7 @@ def open_or_create_project(state: AppState, raw_path: str) -> dict[str, Any]:
             db.commit()
         else:
             db.commit()
-        return {"id": project.id, "name": project.name, "path": project.path}
+        return {"id": project.id, "name": project.name, "path": project.path}, engine, factory, path
 
 
 def get_current_project(session: Session) -> Project:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, Text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..infrastructure.db import Base
@@ -67,17 +67,26 @@ class SceneRevision(Base):
     content: Mapped[str] = mapped_column(Text, default="")
     source: Mapped[str] = mapped_column(String(32), default="AUTHOR")
     content_hash: Mapped[str] = mapped_column(String(64))
+    patch_info: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
 
 
 class GenerationWorkspace(Base):
     __tablename__ = "generation_workspaces"
+    __table_args__ = (UniqueConstraint("scene_id", name="uq_generation_workspaces_scene_id"),)
+
     id: Mapped[int] = mapped_column(primary_key=True)
     scene_id: Mapped[int] = mapped_column(ForeignKey("scenes.id"), index=True)
     base_revision_id: Mapped[Optional[int]] = mapped_column(nullable=True)
-    content: Mapped[str] = mapped_column(Text, default="")
-    status: Mapped[str] = mapped_column(String(32), default="WRITING")
-    context_manifest: Mapped[dict] = mapped_column(JSON, default=dict)
+    draft_content: Mapped[str] = mapped_column(Text, default="")
+    cursor_position: Mapped[int] = mapped_column(Integer, default=0)
+    selection_start: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    selection_end: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="DRAFT")
+    auto_save_snapshot: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    undo_stack: Mapped[Optional[list]] = mapped_column(JSON, default=list)
+    redo_stack: Mapped[Optional[list]] = mapped_column(JSON, default=list)
+    context_manifest: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=now, onupdate=now)
 
 

@@ -9,3 +9,5 @@ frontend/dist/
 *.db-shm
 *.db-wal
 .DS_Store
+docs/
+prd/

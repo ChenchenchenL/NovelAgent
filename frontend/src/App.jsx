@@ -22,8 +22,7 @@ export default function App() {
   const handleSelectChapter = async (chapterId) => {
     setSelectedChapterId(chapterId)
     try {
-      const ch = await api.getChapter(chapterId)
-      setSelectedChapter(ch)
+      setSelectedChapter(await api.getChapter(chapterId))
     } catch (err) {
       setNotice(err.message)
     }
@@ -110,15 +109,11 @@ export default function App() {
           setViewingRevision={sceneState.setViewingRevision}
           revisions={sceneState.revisions}
           busy={sceneState.busy}
-          onSceneContentChange={(val) => sceneState.setScene({ ...sceneState.scene, content: val })}
           onChangeSceneStatus={sceneState.changeSceneStatus}
           onSaveScene={sceneState.saveScene}
           onViewRevision={sceneState.viewRevision}
         />
-        <ChapterControl
-          selectedChapter={selectedChapter}
-          onChangeStatus={handleChangeChapterStatus}
-        />
+        <ChapterControl selectedChapter={selectedChapter} onChangeStatus={handleChangeChapterStatus} />
       </div>
     </main>
   )

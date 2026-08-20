@@ -22,7 +22,11 @@ router = APIRouter(tags=["Projects"])
 
 @router.post("/api/projects/open", response_model=ProjectView)
 def open_project(payload: ProjectOpen, state: AppState = Depends(require_session)) -> dict[str, Any]:
-    return project_service.open_or_create_project(state, payload.path)
+    info, engine, factory, path = project_service.open_or_create_project(
+        state.settings, state.authorized_dirs, payload.path
+    )
+    state.engine, state.session_factory, state.project_dir = engine, factory, path
+    return info
 
 
 @router.get("/api/projects/current", response_model=ProjectView)

@@ -20,16 +20,18 @@ export function useScene(setNotice, refreshTree) {
     }
   }
 
-  const saveScene = async () => {
+  const saveScene = async (contentToSave = null) => {
     if (!scene) return
     setBusy(true)
+    const content = contentToSave !== null ? contentToSave : (scene.content || '')
     try {
       const revision = await api.createPatch(scene.id, {
         base_revision_id: scene.current_revision_id,
-        content: scene.content,
+        content,
         source: 'AUTHOR',
       })
       await api.acceptRevision(scene.id, revision.revision_id)
+      await api.resetWorkspace(scene.id).catch(() => {})
       const loaded = await api.getScene(scene.id)
       setScene(loaded)
       const revs = await api.getRevisions(scene.id)
@@ -37,7 +39,8 @@ export function useScene(setNotice, refreshTree) {
       await refreshTree()
       setNotice('场景不可变版本已提交至正典与文件')
     } catch (err) {
-      setNotice(err.message)
+      setNotice(`保存/采纳失败: ${err.message}`)
+      throw err
     } finally {
       setBusy(false)
     }
