@@ -182,6 +182,30 @@ class ImportJob(Base):
     source_path: Mapped[str] = mapped_column(String(1024))
     status: Mapped[str] = mapped_column(String(32), default="PENDING")
     checkpoint: Mapped[int] = mapped_column(Integer, default=0)
+    total_files: Mapped[int] = mapped_column(Integer, default=0)
+    total_batches: Mapped[int] = mapped_column(Integer, default=0)
+    batch_size: Mapped[int] = mapped_column(Integer, default=10)
+    auto_extract: Mapped[bool] = mapped_column(Boolean, default=False)
+    started_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=now, onupdate=now)
+    error_summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+
+class ImportCheckpoint(Base):
+    __tablename__ = "import_checkpoints"
+    __table_args__ = (UniqueConstraint("job_id", "batch_index", name="uq_import_checkpoints_job_batch"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    job_id: Mapped[int] = mapped_column(ForeignKey("import_jobs.id", ondelete="CASCADE"), index=True)
+    batch_index: Mapped[int] = mapped_column(Integer)
+    file_path: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True)
+    batch_info: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    items_imported: Mapped[int] = mapped_column(Integer, default=0)
+    status: Mapped[str] = mapped_column(String(32), default="PENDING")
+    error_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
 
 
 class ModelInvocation(Base):
@@ -206,6 +230,9 @@ class CommitJournal(Base):
     content_hash: Mapped[str] = mapped_column(String(64))
     file_path: Mapped[str] = mapped_column(String(1024))
     file_status: Mapped[str] = mapped_column(String(32), default="PENDING")
+    file_size: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    encoding: Mapped[str] = mapped_column(String(32), default="utf-8")
+    recovery_attempts: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
 
 

@@ -44,6 +44,19 @@ from .generation import (
     GenerationRunView,
     ModelSettingsRequest,
 )
+from .imports import (
+    ImportCheckpointView,
+    ImportJobCreate,
+    ImportJobCreateResponse,
+    ImportJobView,
+)
+from .recovery import (
+    BackupRequest,
+    BackupResponse,
+    ExportRequest,
+    FsckResolveConflictRequest,
+    RestoreRequest,
+)
 from .workspace import (
     PatchApplyResponse,
     PatchCreate,
@@ -56,6 +69,8 @@ from .workspace import (
 )
 
 __all__ = [
+    "BackupRequest",
+    "BackupResponse",
     "BatchClaimDecisionRequest",
     "CanonClaimView",
     "ChapterCreate",
@@ -71,9 +86,15 @@ __all__ = [
     "DirectorySelection",
     "EntityAliasCreate",
     "EntityAliasView",
+    "ExportRequest",
+    "FsckResolveConflictRequest",
     "GenerateRequest",
     "GenerationRunCreate",
     "GenerationRunView",
+    "ImportCheckpointView",
+    "ImportJobCreate",
+    "ImportJobCreateResponse",
+    "ImportJobView",
     "ImportRequest",
     "Modality",
     "ModelSettingsRequest",
@@ -85,6 +106,7 @@ __all__ = [
     "ProjectTreeView",
     "ProjectView",
     "ReorderRequest",
+    "RestoreRequest",
     "RevisionDiffView",
     "RevisionView",
     "SceneContractUpdate",

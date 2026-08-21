@@ -11,6 +11,7 @@ from .routers import (
     chapters,
     claims,
     generation,
+    imports,
     knowledge,
     patches,
     projects,
@@ -45,6 +46,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(claims.router)
     app.include_router(generation.router)
     app.include_router(knowledge.router)
+    app.include_router(imports.router)
 
     # Static assets mounting for frontend production build
     dist_dir = Path(__file__).parent.parent.parent.parent / "frontend" / "dist"

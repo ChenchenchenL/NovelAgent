@@ -420,3 +420,110 @@ input:focus, textarea:focus, select:focus { border-color: #6e9dc3; }
   border-radius: 3px;
   cursor: pointer;
 }
+
+/* Stage 5 Modals */
+.import-modal, .fsck-modal, .backup-modal {
+  width: 600px;
+  max-width: 90vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #3a3f4d;
+  padding-bottom: 8px;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.import-jobs-list {
+  border-top: 1px solid #3a3f4d;
+  padding-top: 8px;
+}
+
+.job-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #1e2129;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.badge-running { background: #0284c7; color: #fff; }
+.badge-paused { background: #d97706; color: #fff; }
+.badge-completed { background: #059669; color: #fff; }
+.badge-failed { background: #dc2626; color: #fff; }
+.badge-cancelled { background: #4b5563; color: #fff; }
+
+.fsck-toolbar {
+  display: flex;
+  gap: 10px;
+}
+
+.fsck-results {
+  background: #1e2129;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.conflict-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.backup-section {
+  background: #1e2129;
+  padding: 10px 14px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.export-preview {
+  width: 100%;
+  background: #111827;
+  color: #e5e7eb;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 8px;
+  font-family: monospace;
+}
+
+.restore-form {
+  display: flex;
+  gap: 8px;
+}
+
+.restore-form input {
+  flex: 1;
+  padding: 6px 10px;
+  background: #111827;
+  border: 1px solid #374151;
+  color: #fff;
+  border-radius: 4px;
+}

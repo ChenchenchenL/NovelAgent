@@ -11,8 +11,22 @@ from ..dependencies import (
     native_select_directory,
     require_session,
 )
-from ..schemas import DirectorySelection, ModelSettingsRequest
-from ...infrastructure.fsck import check_project
+from ..schemas import (
+    BackupRequest,
+    BackupResponse,
+    DirectorySelection,
+    ExportRequest,
+    FsckResolveConflictRequest,
+    ModelSettingsRequest,
+    RestoreRequest,
+)
+from ...application.services import project_service
+from ...infrastructure.backup_export import (
+    create_project_backup,
+    export_project_novel,
+    restore_project_backup,
+)
+from ...infrastructure.fsck import check_project, resolve_hash_conflict
 from ...integrations.model_gateway import KeyringManager, ModelConfig, ModelGateway
 
 router = APIRouter(tags=["System"])
@@ -101,8 +115,65 @@ def select_history(state: AppState = Depends(require_session)) -> dict[str, Any]
     return {"path": str(path), "history_paths": [str(item) for item in sorted(state.history_dirs)]}
 
 
+@router.post("/api/projects/current/fsck")
 @router.post("/api/fsck")
 def run_fsck(state: AppState = Depends(require_session)) -> dict[str, Any]:
     project_dir, factory = state.require_project()
     with factory() as session:
-        return check_project(project_dir, session)
+        return check_project(project_dir, session, auto_fix=False)
+
+
+@router.post("/api/projects/current/fsck/fix")
+@router.post("/api/fsck/fix")
+def run_fsck_fix(state: AppState = Depends(require_session)) -> dict[str, Any]:
+    project_dir, factory = state.require_project()
+    with factory() as session:
+        return check_project(project_dir, session, auto_fix=True)
+
+
+@router.post("/api/projects/current/fsck/resolve-conflict")
+def resolve_conflict(payload: FsckResolveConflictRequest, state: AppState = Depends(require_session)) -> dict[str, Any]:
+    project_dir, factory = state.require_project()
+    with factory() as session:
+        try:
+            return resolve_hash_conflict(project_dir, session, payload.journal_id, payload.resolution)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.post("/api/projects/current/backup", response_model=BackupResponse)
+def backup_project(payload: BackupRequest | None = None, state: AppState = Depends(require_session)) -> dict[str, Any]:
+    project_dir, _ = state.require_project()
+    out_path = Path(payload.output_path) if payload and payload.output_path else None
+    try:
+        archive = create_project_backup(project_dir, out_path)
+        return {"status": "ok", "output_path": str(archive)}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"创建备份失败: {exc}")
+
+
+@router.post("/api/projects/current/export")
+def export_project(payload: ExportRequest, state: AppState = Depends(require_session)) -> dict[str, Any]:
+    _, factory = state.require_project()
+    with factory() as session:
+        project = project_service.get_current_project(session)
+        try:
+            return export_project_novel(session, project.id, export_format=payload.format)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"导出失败: {exc}")
+
+
+@router.post("/api/projects/current/restore")
+def restore_project(payload: RestoreRequest, state: AppState = Depends(require_session)) -> dict[str, Any]:
+    project_dir, _ = state.require_project()
+    backup_file = Path(payload.backup_file).expanduser().resolve()
+    try:
+        return restore_project_backup(backup_file, project_dir)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"还原备份失败: {exc}")

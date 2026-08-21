@@ -28,11 +28,17 @@ export async function request(path, options = {}) {
 }
 
 export const api = {
-  // System
+  // System & Recovery (Phase 0 & Phase 5)
   initSession: () => request('/api/session'),
   selectDirectory: (body) => request('/api/workspaces/select-directory', { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
   selectHistory: () => request('/api/workspaces/select-history', { method: 'POST' }),
   saveModelSettings: (body) => request('/api/settings/model', { method: 'POST', body: JSON.stringify(body) }),
+  runFsck: () => request('/api/projects/current/fsck', { method: 'POST' }),
+  runFsckFix: () => request('/api/projects/current/fsck/fix', { method: 'POST' }),
+  resolveFsckConflict: (data) => request('/api/projects/current/fsck/resolve-conflict', { method: 'POST', body: JSON.stringify(data) }),
+  backupProject: (data) => request('/api/projects/current/backup', { method: 'POST', body: JSON.stringify(data || {}) }),
+  exportProject: (data) => request('/api/projects/current/export', { method: 'POST', body: JSON.stringify(data) }),
+  restoreProject: (data) => request('/api/projects/current/restore', { method: 'POST', body: JSON.stringify(data) }),
 
   // Projects
   openProject: (path) => request('/api/projects/open', { method: 'POST', body: JSON.stringify({ path }) }),
@@ -40,6 +46,16 @@ export const api = {
   getTree: () => request('/api/projects/current/tree'),
   createVolume: (title) => request('/api/projects/current/volumes', { method: 'POST', body: JSON.stringify({ title }) }),
   importHistory: (source_path) => request('/api/projects/current/import', { method: 'POST', body: JSON.stringify({ source_path }) }),
+
+  // Import Jobs (Phase 5)
+  createImportJob: (data) => request('/api/projects/current/import-jobs', { method: 'POST', body: JSON.stringify(data) }),
+  listImportJobs: () => request('/api/import-jobs'),
+  getImportJob: (jobId) => request(`/api/import-jobs/${jobId}`),
+  pauseImportJob: (jobId) => request(`/api/import-jobs/${jobId}/pause`, { method: 'POST' }),
+  resumeImportJob: (jobId) => request(`/api/import-jobs/${jobId}/resume`, { method: 'POST' }),
+  retryImportJob: (jobId) => request(`/api/import-jobs/${jobId}/retry`, { method: 'POST' }),
+  cancelImportJob: (jobId) => request(`/api/import-jobs/${jobId}`, { method: 'DELETE' }),
+  getImportCheckpoints: (jobId) => request(`/api/import-jobs/${jobId}/checkpoints`),
 
   // Chapters
   createChapter: (data) => request('/api/projects/current/chapters', { method: 'POST', body: JSON.stringify(data) }),

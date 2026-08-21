@@ -5,6 +5,9 @@ import { ChapterTree } from './components/ChapterTree'
 import { SceneEditor } from './components/SceneEditor'
 import { SetupPanel } from './components/SetupPanel'
 import { ModelConfigPanel } from './components/ModelConfigPanel'
+import { ImportManagerModal } from './components/ImportManagerModal'
+import { FsckModal } from './components/FsckModal'
+import { BackupExportModal } from './components/BackupExportModal'
 import { Topbar } from './components/Topbar'
 import { useProject } from './hooks/useProject'
 import { useScene } from './hooks/useScene'
@@ -16,6 +19,9 @@ export default function App() {
   const [selectedChapter, setSelectedChapter] = useState(null)
   const [tab, setTab] = useState('editor')
   const [showModelConfig, setShowModelConfig] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
+  const [showFsckModal, setShowFsckModal] = useState(false)
+  const [showBackupModal, setShowBackupModal] = useState(false)
 
   useSession(setNotice)
   const projectState = useProject(setNotice)
@@ -66,6 +72,9 @@ export default function App() {
         notice={notice}
         showModelConfig={showModelConfig}
         onToggleModelConfig={() => setShowModelConfig(!showModelConfig)}
+        onOpenImport={() => setShowImportModal(true)}
+        onOpenFsck={() => setShowFsckModal(true)}
+        onOpenBackup={() => setShowBackupModal(true)}
       />
       {showModelConfig ? (
         <ModelConfigPanel />
@@ -106,6 +115,9 @@ export default function App() {
         />
         <ChapterControl selectedChapter={selectedChapter} onChangeStatus={handleChangeChapterStatus} />
       </div>
+      {showImportModal && <ImportManagerModal onClose={() => setShowImportModal(false)} onImportCompleted={projectState.refreshTree} />}
+      {showFsckModal && <FsckModal onClose={() => setShowFsckModal(false)} />}
+      {showBackupModal && <BackupExportModal onClose={() => setShowBackupModal(false)} />}
     </main>
   )
 }

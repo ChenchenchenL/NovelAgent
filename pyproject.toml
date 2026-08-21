@@ -15,6 +15,7 @@ dependencies = [
   "pydantic>=2.6",
   "python-multipart>=0.0.9",
   "keyring>=25.0",
+  "PyYAML>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -23,6 +24,9 @@ test = ["pytest>=8.0", "httpx>=0.27"]
 [project.scripts]
 novelagent = "novelagent.main:main"
 novelagent-fsck = "novelagent.infrastructure.fsck:main"
+novelagent-backup = "novelagent.infrastructure.backup_export:backup_cli"
+novelagent-export = "novelagent.infrastructure.backup_export:export_cli"
+novelagent-restore = "novelagent.infrastructure.backup_export:restore_cli"
 
 [tool.setuptools]
 package-dir = {"" = "backend"}
