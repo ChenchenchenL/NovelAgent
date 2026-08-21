@@ -8,24 +8,34 @@ from fastapi.staticfiles import StaticFiles
 
 from .dependencies import AppState
 from .routers import (
+    beats,
     chapters,
     characters,
     claims,
+    cliches,
+    context_packs,
+    feedback,
     foreshadowings,
     generation,
     impact,
     imports,
+    indexes,
     items,
+    kg,
     locations,
     patches,
     plots,
     projects,
+    quality,
     relationships,
     scenes,
+    search,
     secrets,
     shadows,
+    summaries,
     system,
     transitions,
+    voices,
     workspaces,
 )
 from ..config import Settings
@@ -60,6 +70,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(foreshadowings.router)
     app.include_router(transitions.router)
     app.include_router(impact.router)
+    app.include_router(search.router)
+    app.include_router(kg.router)
+    app.include_router(summaries.router)
+    app.include_router(context_packs.router)
+    app.include_router(indexes.router)
+    app.include_router(beats.router)
+    app.include_router(cliches.router)
+    app.include_router(voices.router)
+    app.include_router(quality.router)
+    app.include_router(feedback.router)
     app.include_router(workspaces.router)
     app.include_router(patches.router)
     app.include_router(claims.router)

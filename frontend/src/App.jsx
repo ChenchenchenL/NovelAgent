@@ -10,6 +10,8 @@ import { FsckModal } from './components/FsckModal'
 import { BackupExportModal } from './components/BackupExportModal'
 import { ContinuityModal } from './components/ContinuityModal'
 import { PlotModal } from './components/PlotModal'
+import { SearchModal } from './components/SearchModal'
+import { QualityModal } from './components/QualityModal'
 import { Topbar } from './components/Topbar'
 import { useProject } from './hooks/useProject'
 import { useScene } from './hooks/useScene'
@@ -26,6 +28,8 @@ export default function App() {
   const [showBackupModal, setShowBackupModal] = useState(false)
   const [showContinuityModal, setShowContinuityModal] = useState(false)
   const [showPlotModal, setShowPlotModal] = useState(false)
+  const [showSearchModal, setShowSearchModal] = useState(false)
+  const [showQualityModal, setShowQualityModal] = useState(false)
 
   useSession(setNotice)
   const projectState = useProject(setNotice)
@@ -81,6 +85,8 @@ export default function App() {
         onOpenBackup={() => setShowBackupModal(true)}
         onOpenContinuity={() => setShowContinuityModal(true)}
         onOpenPlot={() => setShowPlotModal(true)}
+        onOpenSearch={() => setShowSearchModal(true)}
+        onOpenQuality={() => setShowQualityModal(true)}
       />
       {showModelConfig ? (
         <ModelConfigPanel />
@@ -135,6 +141,20 @@ export default function App() {
         <PlotModal
           isOpen={showPlotModal}
           onClose={() => setShowPlotModal(false)}
+          currentSceneId={sceneState.scene?.id}
+        />
+      )}
+      {showSearchModal && (
+        <SearchModal
+          isOpen={showSearchModal}
+          onClose={() => setShowSearchModal(false)}
+          currentSceneId={sceneState.scene?.id}
+        />
+      )}
+      {showQualityModal && (
+        <QualityModal
+          isOpen={showQualityModal}
+          onClose={() => setShowQualityModal(false)}
           currentSceneId={sceneState.scene?.id}
         />
       )}

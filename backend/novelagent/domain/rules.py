@@ -268,3 +268,11 @@ def validate_scene_status_transition(
     if current_status == "WRITING" and new_status in {"PARTIALLY_ACCEPTED", "SCENE_ACCEPTED", "EXTRACTION_PENDING"}:
         if not has_content:
             raise ValueError("场景无正文内容，无法流转至采纳或抽取状态")
+
+
+def estimate_tokens(text: str) -> int:
+    """Estimate token count based on character length heuristics."""
+    if not text:
+        return 0
+    return max(1, len(text) // 2)
+

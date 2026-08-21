@@ -156,3 +156,7 @@ def evaluate_scene_transition(prev_exit: dict[str, Any] | None, curr_entry: dict
         "checks": checks,
         "message": "存在硬冲突" if has_conflict else ("存在需关注的跳跃警告" if has_warning else "过渡平稳连续"),
     }
+
+
+from .rules import estimate_tokens
+

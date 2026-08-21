@@ -9,6 +9,8 @@ export function Topbar({
   onOpenBackup,
   onOpenContinuity,
   onOpenPlot,
+  onOpenSearch,
+  onOpenQuality,
 }) {
   return (
     <header className="topbar">
@@ -17,6 +19,12 @@ export function Topbar({
         <h1>NovelAgent</h1>
       </div>
       <div className="topbar-right">
+        <button className="btn-small" onClick={onOpenQuality}>
+          🛡️ 质控与声音
+        </button>
+        <button className="btn-small" onClick={onOpenSearch}>
+          🔎 检索与ContextPack
+        </button>
         <button className="btn-small" onClick={onOpenPlot}>
           📈 剧情与影响图
         </button>

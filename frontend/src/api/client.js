@@ -182,5 +182,71 @@ export const api = {
   propagateImpact: (data) => request('/api/impact-graph/propagate', { method: 'POST', body: JSON.stringify(data) }),
   getSceneImpactReport: (sceneId) => request(`/api/scenes/${sceneId}/impact-report`),
   getProjectImpactSummary: () => request('/api/projects/current/impact-summary'),
+
+  // Stage 8: Search, Vector, KG, H-RAG, ContextPack & Index Management
+  searchFts: (params) => {
+    const q = new URLSearchParams(params).toString()
+    return request(`/api/search/fts?${q}`)
+  },
+  searchVector: (params) => {
+    const q = new URLSearchParams(params).toString()
+    return request(`/api/search/vector?${q}`)
+  },
+  searchHrag: (sceneId, maxTokens = 4000) => request(`/api/search/hrag?scene_id=${sceneId}&max_tokens=${maxTokens}`),
+
+  getKgNodes: (nodeType) => request(`/api/kg/nodes${nodeType ? `?node_type=${nodeType}` : ''}`),
+  getKgEdges: (edgeType) => request(`/api/kg/edges${edgeType ? `?edge_type=${edgeType}` : ''}`),
+  queryKgPath: (data) => request('/api/kg/path', { method: 'POST', body: JSON.stringify(data) }),
+  queryKgNeighbors: (nodeId) => request(`/api/kg/neighbors?node_id=${nodeId}`),
+
+  getSummaries: (type) => request(`/api/summaries${type ? `?summary_type=${type}` : ''}`),
+  createSummary: (data) => request('/api/summaries', { method: 'POST', body: JSON.stringify(data) }),
+  rebuildSummaries: () => request('/api/summaries/rebuild', { method: 'POST' }),
+
+  assembleContextPack: (data) => request('/api/context-packs', { method: 'POST', body: JSON.stringify(data) }),
+  validateContextPack: (data) => request('/api/context-packs/validate', { method: 'POST', body: JSON.stringify(data) }),
+
+  getIndexesStatus: () => request('/api/indexes/status'),
+  rebuildAllIndexes: () => request('/api/indexes/rebuild-all', { method: 'POST' }),
+  rebuildFtsIndex: () => request('/api/indexes/fts/rebuild', { method: 'POST' }),
+  rebuildVectorIndex: () => request('/api/indexes/vector/rebuild', { method: 'POST' }),
+  rebuildKgIndex: () => request('/api/indexes/kg/rebuild', { method: 'POST' }),
+  validateIndexes: () => request('/api/indexes/validate', { method: 'POST' }),
+
+  // Stage 9: Quality Control, Beat Contracts, Cliche Blacklist, Voice Fingerprints & Feedback
+  getSceneBeats: (sceneId) => request(`/api/scenes/${sceneId}/beats`),
+  createSceneBeat: (sceneId, data) => request(`/api/scenes/${sceneId}/beats`, { method: 'POST', body: JSON.stringify(data) }),
+  getBeat: (id) => request(`/api/beats/${id}`),
+  updateBeat: (id, data) => request(`/api/beats/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  advanceBeat: (id, data) => request(`/api/beats/${id}/advance`, { method: 'POST', body: JSON.stringify(data) }),
+  stopBeat: (id, data) => request(`/api/beats/${id}/stop`, { method: 'POST', body: JSON.stringify(data) }),
+
+  getClicheBlacklist: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return request(`/api/cliche-blacklist${q ? `?${q}` : ''}`)
+  },
+  createClicheEntry: (data) => request('/api/cliche-blacklist', { method: 'POST', body: JSON.stringify(data) }),
+  updateClicheEntry: (id, data) => request(`/api/cliche-blacklist/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteClicheEntry: (id) => request(`/api/cliche-blacklist/${id}`, { method: 'DELETE' }),
+  scanCliches: (data) => request('/api/cliche-blacklist/scan', { method: 'POST', body: JSON.stringify(data) }),
+
+  getVoiceFingerprint: (characterId) => request(`/api/characters/${characterId}/voice-fingerprint`),
+  setVoiceFingerprint: (characterId, data) => request(`/api/characters/${characterId}/voice-fingerprint`, { method: 'POST', body: JSON.stringify(data) }),
+  extractVoiceFingerprint: (characterId) => request(`/api/characters/${characterId}/voice-fingerprint/extract`, { method: 'POST' }),
+  checkVoiceDrift: (data) => request('/api/voice-drift-check', { method: 'POST', body: JSON.stringify(data) }),
+  getVoiceLexicons: (characterId) => request(`/api/voice-lexicons${characterId ? `?character_id=${characterId}` : ''}`),
+  createVoiceLexicon: (data) => request('/api/voice-lexicons', { method: 'POST', body: JSON.stringify(data) }),
+  deleteVoiceLexicon: (id) => request(`/api/voice-lexicons/${id}`, { method: 'DELETE' }),
+
+  checkSceneQuality: (sceneId, data = {}) => request(`/api/scenes/${sceneId}/quality-check`, { method: 'POST', body: JSON.stringify(data) }),
+  getSceneQualityReport: (sceneId) => request(`/api/scenes/${sceneId}/quality-report`),
+  getProjectQualityReports: () => request('/api/quality-reports'),
+
+  getAuthorFeedback: (params) => {
+    const q = new URLSearchParams(params || {}).toString()
+    return request(`/api/author-feedback${q ? `?${q}` : ''}`)
+  },
+  createAuthorFeedback: (data) => request('/api/author-feedback', { method: 'POST', body: JSON.stringify(data) }),
+  getAuthorFeedbackStats: () => request('/api/author-feedback/stats'),
 }
 

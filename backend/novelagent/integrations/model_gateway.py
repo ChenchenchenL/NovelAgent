@@ -63,11 +63,16 @@ class ModelConfig:
 class ModelRouter:
     """Routes tasks to model tiers and handles degradation."""
     TASK_TIER_MAPPING: dict[str, str] = {
+        "rules_eval": "T0",
+        "diff_calc": "T0",
+        "conservation_check": "T0",
         "extraction_entity": "T1",
         "extraction_claim": "T1",
         "scene_summary": "T1",
+        "cliche_scan": "T1",
         "beat_plan": "T2",
         "continuity_check": "T2",
+        "quality_check": "T2",
         "paragraph_generation": "T3",
         "full_scene_generation": "T3",
         "global_analysis": "T3",
@@ -87,7 +92,7 @@ class ModelRouter:
             return "T2"
         if current_tier == "T2":
             return "T1"
-        return None
+        return None  # T0 and T1 cannot degrade further
 
 
 class ModelGateway:
