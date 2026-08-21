@@ -8,6 +8,8 @@ import { ModelConfigPanel } from './components/ModelConfigPanel'
 import { ImportManagerModal } from './components/ImportManagerModal'
 import { FsckModal } from './components/FsckModal'
 import { BackupExportModal } from './components/BackupExportModal'
+import { ContinuityModal } from './components/ContinuityModal'
+import { PlotModal } from './components/PlotModal'
 import { Topbar } from './components/Topbar'
 import { useProject } from './hooks/useProject'
 import { useScene } from './hooks/useScene'
@@ -22,6 +24,8 @@ export default function App() {
   const [showImportModal, setShowImportModal] = useState(false)
   const [showFsckModal, setShowFsckModal] = useState(false)
   const [showBackupModal, setShowBackupModal] = useState(false)
+  const [showContinuityModal, setShowContinuityModal] = useState(false)
+  const [showPlotModal, setShowPlotModal] = useState(false)
 
   useSession(setNotice)
   const projectState = useProject(setNotice)
@@ -75,6 +79,8 @@ export default function App() {
         onOpenImport={() => setShowImportModal(true)}
         onOpenFsck={() => setShowFsckModal(true)}
         onOpenBackup={() => setShowBackupModal(true)}
+        onOpenContinuity={() => setShowContinuityModal(true)}
+        onOpenPlot={() => setShowPlotModal(true)}
       />
       {showModelConfig ? (
         <ModelConfigPanel />
@@ -118,6 +124,20 @@ export default function App() {
       {showImportModal && <ImportManagerModal onClose={() => setShowImportModal(false)} onImportCompleted={projectState.refreshTree} />}
       {showFsckModal && <FsckModal onClose={() => setShowFsckModal(false)} />}
       {showBackupModal && <BackupExportModal onClose={() => setShowBackupModal(false)} />}
+      {showContinuityModal && (
+        <ContinuityModal
+          isOpen={showContinuityModal}
+          onClose={() => setShowContinuityModal(false)}
+          currentSceneId={sceneState.scene?.id}
+        />
+      )}
+      {showPlotModal && (
+        <PlotModal
+          isOpen={showPlotModal}
+          onClose={() => setShowPlotModal(false)}
+          currentSceneId={sceneState.scene?.id}
+        />
+      )}
     </main>
   )
 }

@@ -7,6 +7,8 @@ export function Topbar({
   onOpenImport,
   onOpenFsck,
   onOpenBackup,
+  onOpenContinuity,
+  onOpenPlot,
 }) {
   return (
     <header className="topbar">
@@ -15,6 +17,12 @@ export function Topbar({
         <h1>NovelAgent</h1>
       </div>
       <div className="topbar-right">
+        <button className="btn-small" onClick={onOpenPlot}>
+          📈 剧情与影响图
+        </button>
+        <button className="btn-small" onClick={onOpenContinuity}>
+          🎭 设定与连续性
+        </button>
         <button className="btn-small" onClick={onOpenImport}>
           📦 存量导入
         </button>

@@ -153,6 +153,8 @@ class ItemEntity(Base):
     unique_item: Mapped[bool] = mapped_column(Boolean, default=False)
     current_holder: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     current_state: Mapped[str] = mapped_column(String(32), default="CREATED")
+    current_location: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    derived_from_id: Mapped[Optional[int]] = mapped_column(ForeignKey("items.id"), nullable=True)
 
 
 class ItemEvent(Base):
@@ -162,7 +164,11 @@ class ItemEvent(Base):
     event_type: Mapped[str] = mapped_column(String(32))
     from_holder: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     to_holder: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    scene_id: Mapped[Optional[int]] = mapped_column(nullable=True)
+    from_location: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    to_location: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    narrative_time: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    evidence: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    scene_id: Mapped[Optional[int]] = mapped_column(ForeignKey("scenes.id"), nullable=True)
     confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
@@ -172,7 +178,9 @@ class ShadowEntity(Base):
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.id"), index=True)
     display_name: Mapped[str] = mapped_column(String(255))
     canonical_character: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    revealed_scene_id: Mapped[Optional[int]] = mapped_column(nullable=True)
+    canonical_character_id: Mapped[Optional[int]] = mapped_column(ForeignKey("characters.id"), nullable=True)
+    revealed_scene_id: Mapped[Optional[int]] = mapped_column(ForeignKey("scenes.id"), nullable=True)
+    revealed: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
 class ImportJob(Base):

@@ -527,3 +527,93 @@ input:focus, textarea:focus, select:focus { border-color: #6e9dc3; }
   color: #fff;
   border-radius: 4px;
 }
+
+/* Stage 6 Continuity Styles */
+.continuity-modal {
+  width: 780px;
+  max-width: 92vw;
+}
+
+.continuity-subpanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.continuity-form, .continuity-form-inline {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  background: #1e2129;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.continuity-form input, .continuity-form select,
+.continuity-form-inline input, .continuity-form-inline select {
+  padding: 6px 10px;
+  background: #111827;
+  border: 1px solid #374151;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.continuity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.continuity-card {
+  background: #1e2129;
+  border: 1px solid #3a3f4d;
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.continuity-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tag-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.card-desc {
+  color: #9ca3af;
+  font-size: 12px;
+  margin: 0;
+}
+
+.action-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.btn-icon.danger {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.inline-forms {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

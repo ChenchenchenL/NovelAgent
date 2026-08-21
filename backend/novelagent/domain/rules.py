@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Optional
 
 
 @dataclass(frozen=True)
 class ItemTransition:
     event_type: str
-    from_holder: str | None
-    to_holder: str | None
+    from_holder: str | None = None
+    to_holder: str | None = None
+    from_location: str | None = None
+    to_location: str | None = None
+    narrative_time: str | None = None
 
 
 @dataclass(frozen=True)
@@ -67,8 +71,12 @@ def validate_item_transition(
     unique_item: bool,
 ) -> str:
     """Validate conservation before a confirmed ItemEvent is written."""
+    if current_state == "DESTROYED":
+        raise ValueError("a destroyed item cannot be transferred, lost, found or modified")
+
     if transition.event_type not in ALLOWED_ITEM_EVENTS:
         raise ValueError(f"unknown item event: {transition.event_type}")
+
     if transition.event_type == "TRANSFERRED":
         if current_state in {"DESTROYED", "LOST"}:
             raise ValueError("a destroyed or lost item cannot be transferred")
@@ -77,19 +85,118 @@ def validate_item_transition(
         if not transition.to_holder:
             raise ValueError("item transfer requires a destination holder")
         return "HELD"
+
     if transition.event_type == "CREATED":
         if current_state != "CREATED" and unique_item:
             raise ValueError("unique item cannot be created twice")
         return "HELD" if transition.to_holder else "CREATED"
+
+    if transition.event_type == "HIDDEN":
+        if current_state not in {"HELD", "CREATED"}:
+            raise ValueError("only an item in hand or created can be hidden")
+        return "HIDDEN"
+
+    if transition.event_type == "LOST":
+        if current_state not in {"HELD", "HIDDEN"}:
+            raise ValueError("only a held or hidden item can be lost")
+        return "LOST"
+
+    if transition.event_type == "FOUND":
+        if current_state not in {"LOST", "HIDDEN"}:
+            raise ValueError("only a lost or hidden item can be found")
+        if not transition.to_holder:
+            raise ValueError("finding an item requires a discoverer/holder")
+        return "HELD"
+
     if transition.event_type == "DESTROYED":
         return "DESTROYED"
-    if transition.event_type in {"HIDDEN", "LOST"}:
-        return transition.event_type
-    if transition.event_type == "FOUND":
-        if current_state != "LOST":
-            raise ValueError("only a lost item can be found")
-        return "HELD"
+
     return current_state
+
+
+def calculate_time_delta_minutes(departure_time: str | None, arrival_time: str | None) -> int | None:
+    """Calculate minutes between two times supporting ISO timestamps or numeric strings."""
+    if not departure_time or not arrival_time:
+        return None
+    try:
+        d_val = int(departure_time)
+        a_val = int(arrival_time)
+        return max(0, abs(a_val - d_val))
+    except (ValueError, TypeError):
+        pass
+    try:
+        d_dt = datetime.fromisoformat(departure_time.replace("Z", "+00:00"))
+        a_dt = datetime.fromisoformat(arrival_time.replace("Z", "+00:00"))
+        delta_sec = (a_dt - d_dt).total_seconds()
+        return max(0, int(delta_sec // 60))
+    except Exception:
+        return None
+
+
+def evaluate_movement_feasibility(
+    from_location_id: int,
+    to_location_id: int,
+    travel_mode: str,
+    min_duration_minutes: int | None,
+    actual_duration_minutes: int | None,
+) -> dict[str, Any]:
+    """Evaluate feasibility of movement given travel profile and duration."""
+    if from_location_id == to_location_id:
+        return {"status": "OK", "duration": 0, "reason": "same_location"}
+
+    if travel_mode in {"TELEPORT", "FLIGHT"}:
+        return {"status": "OK", "duration": actual_duration_minutes or 0, "reason": "supernatural_or_instant_travel"}
+
+    if min_duration_minutes is None:
+        return {"status": "UNKNOWN", "reason": "no travel profile defined"}
+
+    if actual_duration_minutes is None:
+        return {"status": "UNKNOWN", "reason": "cannot calculate narrative duration"}
+
+    if actual_duration_minutes < min_duration_minutes:
+        return {
+            "status": "CONFLICT",
+            "reason": f"actual duration {actual_duration_minutes} min < minimum required {min_duration_minutes} min",
+            "min_required": min_duration_minutes,
+            "actual": actual_duration_minutes,
+        }
+
+    return {"status": "OK", "duration": actual_duration_minutes, "min_required": min_duration_minutes}
+
+
+def evaluate_shadow_coexistence(
+    shadow_states: list[dict[str, Any]],
+    canonical_states: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Check physical co-presence or location conflict between shadow and canonical character."""
+    conflicts: list[dict[str, Any]] = []
+    canonical_by_scene = {cs["scene_id"]: cs for cs in canonical_states if "scene_id" in cs}
+
+    for ss in shadow_states:
+        s_id = ss.get("scene_id")
+        if s_id and s_id in canonical_by_scene:
+            cs = canonical_by_scene[s_id]
+            s_loc = ss.get("location")
+            c_loc = cs.get("location")
+            if s_loc and c_loc and s_loc != c_loc:
+                conflicts.append({
+                    "scene_id": s_id,
+                    "type": "LOCATION_DISCREPANCY",
+                    "shadow_location": s_loc,
+                    "canonical_location": c_loc,
+                })
+    return conflicts
+
+
+def check_character_knowledge_violation(
+    character_id: int,
+    known_secret_ids: set[int],
+    scene_secret_mentions: list[int],
+) -> list[int]:
+    """Return list of secret IDs that are referenced in scene without character prior knowledge."""
+    if not character_id or character_id <= 0:
+        return []
+    return [sec_id for sec_id in scene_secret_mentions if sec_id not in known_secret_ids]
 
 
 def claim_is_low_risk(
@@ -109,7 +216,6 @@ def claim_is_low_risk(
     if confidence < 0.80 or entity_confidence < 0.75:
         return False
     return predicate in {"appears", "has_attribute", "located_at"}
-
 
 
 VALID_CHAPTER_TRANSITIONS: dict[str, set[str]] = {

@@ -9,14 +9,23 @@ from fastapi.staticfiles import StaticFiles
 from .dependencies import AppState
 from .routers import (
     chapters,
+    characters,
     claims,
+    foreshadowings,
     generation,
+    impact,
     imports,
-    knowledge,
+    items,
+    locations,
     patches,
+    plots,
     projects,
+    relationships,
     scenes,
+    secrets,
+    shadows,
     system,
+    transitions,
     workspaces,
 )
 from ..config import Settings
@@ -41,11 +50,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(projects.router)
     app.include_router(chapters.router)
     app.include_router(scenes.router)
+    app.include_router(characters.router)
+    app.include_router(relationships.router)
+    app.include_router(secrets.router)
+    app.include_router(items.router)
+    app.include_router(shadows.router)
+    app.include_router(locations.router)
+    app.include_router(plots.router)
+    app.include_router(foreshadowings.router)
+    app.include_router(transitions.router)
+    app.include_router(impact.router)
     app.include_router(workspaces.router)
     app.include_router(patches.router)
     app.include_router(claims.router)
     app.include_router(generation.router)
-    app.include_router(knowledge.router)
     app.include_router(imports.router)
 
     # Static assets mounting for frontend production build
