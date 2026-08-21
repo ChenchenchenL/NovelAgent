@@ -40,6 +40,7 @@ class Chapter(Base):
     sequence: Mapped[int] = mapped_column(Integer, default=1)
     status: Mapped[str] = mapped_column(String(32), default="IDEA")
     contract: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
 
 
 class Scene(Base):
@@ -57,6 +58,7 @@ class Scene(Base):
     status: Mapped[str] = mapped_column(String(32), default="PLANNED")
     entry_contract: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
     exit_state: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
 
 
 class SceneRevision(Base):
@@ -98,11 +100,15 @@ class ClaimCandidate(Base):
     predicate: Mapped[str] = mapped_column(String(255))
     object_value: Mapped[str] = mapped_column(String(255))
     modality: Mapped[str] = mapped_column(String(32), default="AMBIGUOUS")
+    cognitive_subject: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     source_start: Mapped[int] = mapped_column(Integer, default=0)
     source_end: Mapped[int] = mapped_column(Integer, default=0)
+    paragraph_index: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     source_text: Mapped[str] = mapped_column(Text, default="")
+    content_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     confidence: Mapped[float] = mapped_column(default=0.0)
     entity_confidence: Mapped[float] = mapped_column(default=0.0)
+    hypothesis_tags: Mapped[Optional[list]] = mapped_column(JSON, nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="REVIEW_REQUIRED")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
 
@@ -118,7 +124,25 @@ class CanonClaim(Base):
     source_scene_id: Mapped[Optional[int]] = mapped_column(nullable=True)
     source_start: Mapped[int] = mapped_column(Integer, default=0)
     source_end: Mapped[int] = mapped_column(Integer, default=0)
+    source_candidate_id: Mapped[Optional[int]] = mapped_column(ForeignKey("claim_candidates.id", ondelete="SET NULL"), nullable=True)
     confirmed: Mapped[bool] = mapped_column(Boolean, default=True)
+    auto_confirmed: Mapped[bool] = mapped_column(Boolean, default=False)
+    author_decision_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=now, onupdate=now)
+
+
+class EntityAlias(Base):
+    __tablename__ = "entity_aliases"
+    __table_args__ = (UniqueConstraint("project_id", "canonical_name", "alias_name", name="uq_project_canonical_alias"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    canonical_name: Mapped[str] = mapped_column(String(255))
+    alias_name: Mapped[str] = mapped_column(String(255))
+    alias_type: Mapped[str] = mapped_column(String(32), default="informal")
+    confirmed_by: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
 
 
 class ItemEntity(Base):
@@ -166,7 +190,11 @@ class ModelInvocation(Base):
     task_type: Mapped[str] = mapped_column(String(64))
     tier: Mapped[str] = mapped_column(String(8))
     model: Mapped[str] = mapped_column(String(255))
+    endpoint: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     context_manifest: Mapped[dict] = mapped_column(JSON, default=dict)
+    token_usage: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    duration_ms: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    degraded_to: Mapped[Optional[str]] = mapped_column(String(8), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="PENDING")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
 
@@ -193,6 +221,29 @@ class GenerationRun(Base):
     __tablename__ = "generation_runs"
     id: Mapped[int] = mapped_column(primary_key=True)
     scene_id: Mapped[int] = mapped_column(ForeignKey("scenes.id"), index=True)
+    task_type: Mapped[str] = mapped_column(String(64), default="paragraph_generation")
     status: Mapped[str] = mapped_column(String(32), default="CREATED")
     prompt: Mapped[str] = mapped_column(Text, default="")
+    request_snapshot: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    response_snapshot: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    model_tier: Mapped[str] = mapped_column(String(8), default="T3")
+    actual_model: Mapped[str] = mapped_column(String(255), default="")
+    context_manifest: Mapped[dict] = mapped_column(JSON, default=dict)
+    token_usage: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    error_message: Mapped[Optional[str]] = mapped_column(String(1024), nullable=True)
+    started_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    retries: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=now)
+
+
+class GenerationRunEvent(Base):
+    __tablename__ = "generation_run_events"
+    __table_args__ = (UniqueConstraint("run_id", "sequence_number", name="uq_generation_run_events_seq"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    run_id: Mapped[int] = mapped_column(ForeignKey("generation_runs.id", ondelete="CASCADE"), index=True)
+    event_type: Mapped[str] = mapped_column(String(64))
+    payload: Mapped[dict] = mapped_column(JSON, default=dict)
+    sequence_number: Mapped[int] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=now)

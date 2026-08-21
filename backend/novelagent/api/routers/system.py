@@ -13,7 +13,7 @@ from ..dependencies import (
 )
 from ..schemas import DirectorySelection, ModelSettingsRequest
 from ...infrastructure.fsck import check_project
-from ...integrations.model_gateway import ModelConfig, ModelGateway
+from ...integrations.model_gateway import KeyringManager, ModelConfig, ModelGateway
 
 router = APIRouter(tags=["System"])
 
@@ -29,25 +29,45 @@ def session(response: Response, state: AppState = Depends(get_app_state)) -> dic
     return {"token": state.session_token}
 
 
+@router.get("/api/model/config")
 @router.get("/api/settings/model")
 def get_model_settings(state: AppState = Depends(require_session)) -> dict[str, Any]:
-    return {"endpoint": state.model_config.endpoint, "models": state.model_config.models}
+    has_key = bool(KeyringManager.load_key(state.model_config.endpoint))
+    return {
+        "endpoint": state.model_config.endpoint,
+        "models": state.model_config.models,
+        "has_key": has_key,
+        "key_saved": has_key,
+    }
 
 
+@router.put("/api/model/config")
 @router.post("/api/settings/model")
 def save_model_settings(payload: ModelSettingsRequest, state: AppState = Depends(require_session)) -> dict[str, Any]:
     models = payload.models or ModelConfig(endpoint=payload.endpoint).models
     state.model_config = ModelConfig(endpoint=payload.endpoint, models=models)
     if payload.api_key:
-        try:
-            ModelGateway.save_key("novelagent", payload.endpoint, payload.api_key)
-        except Exception as exc:
-            raise HTTPException(status_code=500, detail=f"操作系统 Keyring 不可用：{exc}") from exc
+        KeyringManager.save_key(payload.endpoint, payload.api_key)
     return {
         "endpoint": state.model_config.endpoint,
         "models": state.model_config.models,
-        "key_saved": bool(payload.api_key),
+        "key_saved": bool(payload.api_key or KeyringManager.load_key(payload.endpoint)),
     }
+
+
+@router.post("/api/model/test")
+async def test_model_connection(payload: ModelSettingsRequest | None = None, state: AppState = Depends(require_session)) -> dict[str, Any]:
+    endpoint = payload.endpoint if payload and payload.endpoint else state.model_config.endpoint
+    key = payload.api_key if payload and payload.api_key else KeyringManager.load_key(endpoint)
+    cfg = ModelConfig(endpoint=endpoint)
+    gw = ModelGateway(cfg)
+    return await gw.test_connection(api_key=key)
+
+
+@router.delete("/api/model/api-key")
+def delete_model_key(state: AppState = Depends(require_session)) -> dict[str, Any]:
+    KeyringManager.delete_key(state.model_config.endpoint)
+    return {"status": "ok", "message": "已删除 API Key"}
 
 
 @router.post("/api/workspaces/select-directory")

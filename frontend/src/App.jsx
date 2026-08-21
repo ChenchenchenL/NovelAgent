@@ -4,6 +4,7 @@ import { ChapterControl } from './components/ChapterControl'
 import { ChapterTree } from './components/ChapterTree'
 import { SceneEditor } from './components/SceneEditor'
 import { SetupPanel } from './components/SetupPanel'
+import { ModelConfigPanel } from './components/ModelConfigPanel'
 import { Topbar } from './components/Topbar'
 import { useProject } from './hooks/useProject'
 import { useScene } from './hooks/useScene'
@@ -14,53 +15,35 @@ export default function App() {
   const [selectedChapterId, setSelectedChapterId] = useState(null)
   const [selectedChapter, setSelectedChapter] = useState(null)
   const [tab, setTab] = useState('editor')
+  const [showModelConfig, setShowModelConfig] = useState(false)
 
   useSession(setNotice)
   const projectState = useProject(setNotice)
   const sceneState = useScene(setNotice, projectState.refreshTree)
 
-  const handleSelectChapter = async (chapterId) => {
-    setSelectedChapterId(chapterId)
+  const handleSelectChapter = async (id) => {
+    setSelectedChapterId(id)
     try {
-      setSelectedChapter(await api.getChapter(chapterId))
+      setSelectedChapter(await api.getChapter(id))
     } catch (err) {
       setNotice(err.message)
     }
   }
 
-  const handleCreateVolume = async () => {
-    const title = window.prompt('输入卷标题：', '新卷')
+  const handleCreate = async (type, parentId = null) => {
+    const title = window.prompt(`输入${type}标题：`, `新${type}`)
     if (!title) return
     try {
-      await api.createVolume(title)
+      if (type === '卷') await api.createVolume(title)
+      else if (type === '章节') {
+        const res = await api.createChapter({ title, volume_id: parentId })
+        handleSelectChapter(res.id)
+      } else if (type === '场景') {
+        const res = await api.createScene(parentId, { title })
+        await sceneState.selectScene(res.id)
+      }
       await projectState.refreshTree()
-      setNotice(`已创建卷：${title}`)
-    } catch (err) {
-      setNotice(err.message)
-    }
-  }
-
-  const handleCreateChapter = async (volumeId = null) => {
-    const title = window.prompt('输入章节标题：', '新章节')
-    if (!title) return
-    try {
-      const res = await api.createChapter({ title, volume_id: volumeId })
-      await projectState.refreshTree()
-      setNotice(`已创建章节：${title}`)
-      handleSelectChapter(res.id)
-    } catch (err) {
-      setNotice(err.message)
-    }
-  }
-
-  const handleCreateScene = async (chapterId) => {
-    const title = window.prompt('输入场景标题：', '新场景')
-    if (!title) return
-    try {
-      const res = await api.createScene(chapterId, { title })
-      await projectState.refreshTree()
-      await sceneState.selectScene(res.id)
-      setNotice(`已创建场景：${title}`)
+      setNotice(`已创建${type}：${title}`)
     } catch (err) {
       setNotice(err.message)
     }
@@ -79,25 +62,33 @@ export default function App() {
 
   return (
     <main className="app-shell">
-      <Topbar notice={notice} />
-      <SetupPanel
-        currentPath={projectState.currentPath}
-        setCurrentPath={projectState.setCurrentPath}
-        historyPaths={projectState.historyPaths}
-        setHistoryPaths={projectState.setHistoryPaths}
-        onChooseDirectory={projectState.chooseDirectory}
-        onOpenProject={projectState.openProject}
-        disabled={!projectState.currentPath}
+      <Topbar
+        notice={notice}
+        showModelConfig={showModelConfig}
+        onToggleModelConfig={() => setShowModelConfig(!showModelConfig)}
       />
+      {showModelConfig ? (
+        <ModelConfigPanel />
+      ) : (
+        <SetupPanel
+          currentPath={projectState.currentPath}
+          setCurrentPath={projectState.setCurrentPath}
+          historyPaths={projectState.historyPaths}
+          setHistoryPaths={projectState.setHistoryPaths}
+          onChooseDirectory={projectState.chooseDirectory}
+          onOpenProject={projectState.openProject}
+          disabled={!projectState.currentPath}
+        />
+      )}
       <div className="workspace">
         <ChapterTree
           tree={projectState.tree}
           project={projectState.project}
           selectedChapterId={selectedChapterId}
           selectedSceneId={sceneState.scene?.id}
-          onCreateVolume={handleCreateVolume}
-          onCreateChapter={handleCreateChapter}
-          onCreateScene={handleCreateScene}
+          onCreateVolume={() => handleCreate('卷')}
+          onCreateChapter={(vId) => handleCreate('章节', vId)}
+          onCreateScene={(cId) => handleCreate('场景', cId)}
           onSelectChapter={handleSelectChapter}
           onSelectScene={sceneState.selectScene}
         />

@@ -22,6 +22,22 @@ class TextPatchData:
 
 
 @dataclass(frozen=True)
+class SourceSpan:
+    revision_id: int | None
+    start_offset: int
+    end_offset: int
+    content_hash: str | None = None
+
+    def resolve_text(self, text_provider_or_content: Any) -> str:
+        """Resolve text slice either from full string or revision object with content."""
+        if isinstance(text_provider_or_content, str):
+            return text_provider_or_content[self.start_offset:self.end_offset]
+        if hasattr(text_provider_or_content, "content") and text_provider_or_content.content:
+            return text_provider_or_content.content[self.start_offset:self.end_offset]
+        return ""
+
+
+@dataclass(frozen=True)
 class WorkspaceUpdateData:
     draft_content: str | None = None
     cursor_position: int | None = None
@@ -76,14 +92,24 @@ def validate_item_transition(
     return current_state
 
 
-def claim_is_low_risk(*, modality: str, subject_resolved: bool, predicate: str, explicit: bool) -> bool:
+def claim_is_low_risk(
+    *,
+    modality: str,
+    subject_resolved: bool,
+    predicate: str,
+    explicit: bool = True,
+    confidence: float = 1.0,
+    entity_confidence: float = 1.0,
+) -> bool:
     """Only explicit ACTUAL entity/property/location claims auto-confirm."""
-    return (
-        modality == "ACTUAL"
-        and subject_resolved
-        and explicit
-        and predicate in {"appears", "has_attribute", "located_at"}
-    )
+    if modality != "ACTUAL":
+        return False
+    if not subject_resolved or not explicit:
+        return False
+    if confidence < 0.80 or entity_confidence < 0.75:
+        return False
+    return predicate in {"appears", "has_attribute", "located_at"}
+
 
 
 VALID_CHAPTER_TRANSITIONS: dict[str, set[str]] = {

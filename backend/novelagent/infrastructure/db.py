@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
+
+logger = logging.getLogger(__name__)
 
 
 class Base(DeclarativeBase):
@@ -24,7 +27,26 @@ def make_engine(path: Path):
     return engine
 
 
+def run_migrations(db_path: Path) -> bool:
+    """Execute Alembic upgrade head on target SQLite database."""
+    try:
+        from alembic import command
+        from alembic.config import Config
+        repo_root = Path(__file__).resolve().parents[3]
+        ini_path = repo_root / "alembic.ini"
+        if ini_path.exists():
+            cfg = Config(str(ini_path))
+            cfg.set_main_option("sqlalchemy.url", f"sqlite:///{db_path.resolve()}")
+            cfg.set_main_option("script_location", str((repo_root / "alembic").resolve()))
+            command.upgrade(cfg, "head")
+            return True
+    except Exception as e:
+        logger.warning("Alembic upgrade failed, falling back to create_all: %s", e)
+    return False
+
+
 def make_session_factory(path: Path):
     engine = make_engine(path)
-    Base.metadata.create_all(engine)
+    if not run_migrations(path):
+        Base.metadata.create_all(engine)
     return engine, sessionmaker(bind=engine, class_=Session, expire_on_commit=False)

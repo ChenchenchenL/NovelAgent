@@ -65,4 +65,26 @@ export const api = {
   mergePatches: (sceneId, data) => request(`/api/scenes/${sceneId}/patches/merge`, { method: 'POST', body: JSON.stringify(data) }),
   selectiveAccept: (sceneId, data) => request(`/api/scenes/${sceneId}/patches/selective-accept`, { method: 'POST', body: JSON.stringify(data) }),
   getDiff: (sceneId, revisionId, against) => request(`/api/scenes/${sceneId}/revisions/${revisionId}/diff${against ? `?against=${against}` : ''}`),
+
+  // Model & Generation (Phase 3)
+  getModelConfig: () => request('/api/model/config'),
+  updateModelConfig: (data) => request('/api/model/config', { method: 'PUT', body: JSON.stringify(data) }),
+  testModelConnection: (data) => request('/api/model/test', { method: 'POST', body: JSON.stringify(data || {}) }),
+  deleteApiKey: () => request('/api/model/api-key', { method: 'DELETE' }),
+  createGenerationRun: (sceneId, data) => request(`/api/scenes/${sceneId}/generation-runs`, { method: 'POST', body: JSON.stringify(data) }),
+  getGenerationRun: (runId) => request(`/api/generation-runs/${runId}`),
+  cancelGenerationRun: (runId) => request(`/api/generation-runs/${runId}/cancel`, { method: 'POST' }),
+  listGenerationRuns: (sceneId) => request(`/api/generation-runs${sceneId ? `?scene_id=${sceneId}` : ''}`),
+
+  // Claims & Extraction & Arbitration (Phase 4)
+  extractSceneClaims: (sceneId, data) => request(`/api/scenes/${sceneId}/extract`, { method: 'POST', body: JSON.stringify(data || {}) }),
+  batchExtractChapter: (chapterId, data) => request(`/api/chapters/${chapterId}/batch-extract`, { method: 'POST', body: JSON.stringify(data || {}) }),
+  getClaimCandidates: (sceneId, status) => request(`/api/scenes/${sceneId}/claim-candidates${status ? `?status=${status}` : ''}`),
+  getCanonClaims: (sceneId) => request(`/api/scenes/${sceneId}/canon-claims`),
+  decideClaimCandidate: (candidateId, data) => request(`/api/claim-candidates/${candidateId}/decision`, { method: 'POST', body: JSON.stringify(data) }),
+  batchDecideClaimCandidates: (sceneId, data) => request(`/api/scenes/${sceneId}/claim-candidates/batch-decision`, { method: 'POST', body: JSON.stringify(data) }),
+  getClaimConflicts: (sceneId) => request(`/api/claims/conflicts${sceneId ? `?scene_id=${sceneId}` : ''}`),
+  getEntityAliases: () => request('/api/entity-aliases'),
+  createEntityAlias: (data) => request('/api/entity-aliases', { method: 'POST', body: JSON.stringify(data) }),
+  deleteEntityAlias: (aliasId) => request(`/api/entity-aliases/${aliasId}`, { method: 'DELETE' }),
 }

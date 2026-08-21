@@ -3,6 +3,7 @@ import React, { useRef } from 'react'
 export function MarkdownEditor({
   draftContent,
   isSaving,
+  saveError = null,
   hasSnapshot,
   canUndo,
   canRedo,
@@ -14,6 +15,7 @@ export function MarkdownEditor({
   onSnapshot,
   onRestore,
   onReset,
+  onRetrySave,
 }) {
   const textareaRef = useRef(null)
 
@@ -52,6 +54,11 @@ export function MarkdownEditor({
             <span className="status-readonly">只读预览模式</span>
           ) : isSaving ? (
             <span className="status-saving">正在保存工作区...</span>
+          ) : saveError ? (
+            <span className="status-error" style={{ color: '#ef4444' }}>
+              自动保存失败 ({saveError}){' '}
+              {onRetrySave && <button className="btn-retry" onClick={onRetrySave}>重试</button>}
+            </span>
           ) : (
             <span className="status-saved">工作区已同步</span>
           )}

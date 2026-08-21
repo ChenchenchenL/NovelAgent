@@ -56,8 +56,10 @@ def create_chapter(payload: ChapterCreate, state: AppState = Depends(require_ses
             "volume_id": chapter.volume_id,
             "title": chapter.title,
             "sequence": chapter.sequence,
+            "order_in_volume": chapter.sequence,
             "status": chapter.status,
             "contract": chapter.contract,
+            "created_at": chapter.created_at.isoformat() if chapter.created_at else "",
         }
 
 
@@ -113,8 +115,10 @@ def update_chapter(chapter_id: int, payload: ChapterUpdate, state: AppState = De
             "volume_id": chapter.volume_id,
             "title": chapter.title,
             "sequence": chapter.sequence,
+            "order_in_volume": chapter.sequence,
             "status": chapter.status,
             "contract": chapter.contract,
+            "created_at": chapter.created_at.isoformat() if chapter.created_at else "",
         }
 
 

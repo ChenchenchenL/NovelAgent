@@ -18,6 +18,7 @@ from .models import (
 from .rules import (
     ALLOWED_ITEM_EVENTS,
     ItemTransition,
+    SourceSpan,
     VALID_CHAPTER_TRANSITIONS,
     VALID_SCENE_TRANSITIONS,
     claim_is_low_risk,
@@ -42,6 +43,7 @@ __all__ = [
     "CanonClaim",
     "ALLOWED_ITEM_EVENTS",
     "ItemTransition",
+    "SourceSpan",
     "VALID_CHAPTER_TRANSITIONS",
     "VALID_SCENE_TRANSITIONS",
     "claim_is_low_risk",

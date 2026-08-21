@@ -37,14 +37,15 @@ def create_scene(chapter_id: int, payload: SceneCreate, state: AppState = Depend
             "id": scene.id,
             "chapter_id": scene.chapter_id,
             "title": scene.title,
-            "sequence": scene.sequence,
+            "order_in_chapter": scene.sequence,
             "pov": scene.pov,
             "location": scene.location,
             "status": scene.status,
             "current_revision_id": scene.current_revision_id,
             "content": "",
-            "entry_contract": scene.entry_contract,
-            "exit_state": scene.exit_state,
+            "entry_contract": scene.entry_contract or {},
+            "exit_contract": scene.exit_state or {},
+            "created_at": scene.created_at.isoformat() if hasattr(scene, 'created_at') and scene.created_at else "",
         }
 
 
@@ -57,14 +58,15 @@ def get_scene(scene_id: int, state: AppState = Depends(require_session)) -> dict
             "id": scene.id,
             "chapter_id": scene.chapter_id,
             "title": scene.title,
-            "sequence": scene.sequence,
+            "order_in_chapter": scene.sequence,
             "pov": scene.pov,
             "location": scene.location,
             "status": scene.status,
             "current_revision_id": scene.current_revision_id,
             "content": get_scene_content(db, scene),
-            "entry_contract": scene.entry_contract,
-            "exit_state": scene.exit_state,
+            "entry_contract": scene.entry_contract or {},
+            "exit_contract": scene.exit_state or {},
+            "created_at": scene.created_at.isoformat() if hasattr(scene, 'created_at') and scene.created_at else "",
         }
 
 
@@ -77,14 +79,15 @@ def update_scene(scene_id: int, payload: SceneUpdate, state: AppState = Depends(
             "id": scene.id,
             "chapter_id": scene.chapter_id,
             "title": scene.title,
-            "sequence": scene.sequence,
+            "order_in_chapter": scene.sequence,
             "pov": scene.pov,
             "location": scene.location,
             "status": scene.status,
             "current_revision_id": scene.current_revision_id,
             "content": get_scene_content(db, scene),
-            "entry_contract": scene.entry_contract,
-            "exit_state": scene.exit_state,
+            "entry_contract": scene.entry_contract or {},
+            "exit_contract": scene.exit_state or {},
+            "created_at": scene.created_at.isoformat() if hasattr(scene, 'created_at') and scene.created_at else "",
         }
 
 
@@ -127,7 +130,9 @@ def list_revisions(scene_id: int, state: AppState = Depends(require_session)) ->
             {
                 "id": r.id,
                 "scene_id": r.scene_id,
-                "base_revision_id": r.base_revision_id,
+                "version_number": r.id,  # Use revision ID as version number
+                "content": r.content,
+                "word_count": len(r.content.split()) if r.content else 0,
                 "source": r.source,
                 "content_hash": r.content_hash,
                 "patch_info": r.patch_info,
@@ -145,8 +150,9 @@ def get_revision(scene_id: int, revision_id: int, state: AppState = Depends(requ
         return {
             "id": r.id,
             "scene_id": r.scene_id,
-            "base_revision_id": r.base_revision_id,
+            "version_number": r.id,  # Use revision ID as version number
             "content": r.content,
+            "word_count": len(r.content.split()) if r.content else 0,
             "source": r.source,
             "content_hash": r.content_hash,
             "patch_info": r.patch_info,
@@ -158,7 +164,8 @@ def get_revision(scene_id: int, revision_id: int, state: AppState = Depends(requ
 def update_entry_contract(scene_id: int, payload: SceneEntryContractUpdate, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
-        scene = scene_service.update_entry_contract(db, scene_id, payload.entry_contract)
+        data = payload.entry_contract if payload.entry_contract is not None else payload.model_dump(exclude_unset=True)
+        scene = scene_service.update_entry_contract(db, scene_id, data)
         return {"id": scene.id, "entry_contract": scene.entry_contract}
 
 
@@ -166,7 +173,8 @@ def update_entry_contract(scene_id: int, payload: SceneEntryContractUpdate, stat
 def update_exit_state(scene_id: int, payload: SceneExitStateUpdate, state: AppState = Depends(require_session)) -> dict[str, Any]:
     _, factory = state.require_project()
     with factory() as db:
-        scene = scene_service.update_exit_state(db, scene_id, payload.exit_state)
+        data = payload.exit_state if payload.exit_state is not None else payload.model_dump(exclude_unset=True)
+        scene = scene_service.update_exit_state(db, scene_id, data)
         return {"id": scene.id, "exit_state": scene.exit_state}
 
 

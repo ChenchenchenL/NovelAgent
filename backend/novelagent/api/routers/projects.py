@@ -57,6 +57,7 @@ def get_volumes(state: AppState = Depends(require_session)) -> list[dict[str, An
                 "project_id": v.project_id,
                 "title": v.title,
                 "sequence": v.sequence,
+                "order_in_project": v.sequence,
                 "status": v.status,
                 "created_at": v.created_at.isoformat() if v.created_at else "",
             }
@@ -75,6 +76,7 @@ def create_volume(payload: VolumeCreate, state: AppState = Depends(require_sessi
             "project_id": volume.project_id,
             "title": volume.title,
             "sequence": volume.sequence,
+            "order_in_project": volume.sequence,
             "status": volume.status,
             "created_at": volume.created_at.isoformat() if volume.created_at else "",
         }
@@ -91,6 +93,7 @@ def update_volume(volume_id: int, payload: VolumeUpdate, state: AppState = Depen
             "project_id": volume.project_id,
             "title": volume.title,
             "sequence": volume.sequence,
+            "order_in_project": volume.sequence,
             "status": volume.status,
             "created_at": volume.created_at.isoformat() if volume.created_at else "",
         }
