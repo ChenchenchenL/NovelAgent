@@ -6,6 +6,7 @@ export function AppHeader({
   selectedSceneTitle,
   onOpenProjectSettings,
   onOpenOutlineModal,
+  onOpenModelModal,
   onQuickSave,
   canSave,
   isSaving,
@@ -46,6 +47,9 @@ export function AppHeader({
       <div className="header-right">
         <button className="btn-sm" onClick={onOpenOutlineModal} title="查看与调整全书大纲与设定">
           故事大纲与设定
+        </button>
+        <button className="btn-sm" onClick={onOpenModelModal} title="自定义配置 OpenAI / DeepSeek / Claude / 本地大模型">
+          模型设置
         </button>
         <button className="btn-sm" onClick={onOpenProjectSettings} title="切换或新建小说项目文件夹">
           切换项目

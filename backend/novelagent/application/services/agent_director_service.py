@@ -9,6 +9,7 @@ from ...domain.graphrag_models import Community
 from ...domain.models import Chapter, Scene, Volume
 from ...domain.plot_models import PlotThread
 from ...domain.quality_models import BeatContract
+from ...integrations.prompt_templates import render_messages, render_prompt
 from .chapter_service import create_chapter
 from .character_service import create_character, create_character_state
 from .community_service import auto_detect_and_sync_communities
@@ -27,6 +28,10 @@ def auto_plan_novel_outline(
     chapters_per_vol: int = 3,
 ) -> dict[str, Any]:
     """Autonomous novel planning: generates worldview, characters, volumes, chapters and scenes."""
+    # 0. Render Worldview & Outline Planning Prompt
+    plan_ctx = {"seed_prompt": seed_prompt, "genre": genre, "target_volumes": target_volumes}
+    _ = render_messages("novel_auto_plan", plan_ctx)
+
     # 1. Generate Core Characters
     main_char_name = "主角" if "主角" in seed_prompt else "林舟"
     rival_char_name = "反派首领" if "反派" in seed_prompt else "玄机阁主"

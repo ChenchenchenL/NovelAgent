@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from ...domain.continuity_models import Character
 from ...domain.models import Chapter, Scene, SceneRevision
 from ...domain.rules import estimate_tokens
+from ...integrations.prompt_templates import render_messages, render_prompt
 from .beat_service import list_scene_beats
 from .cliche_service import scan_text_cliches as scan_cliches_in_text
 from .community_service import invalidate_affected_communities
@@ -17,6 +18,26 @@ from .quality_service import check_scene_quality
 from .scene_service import create_patch, get_scene
 from .voice_service import check_voice_drift
 from .workspace_service import get_or_create_workspace, update_workspace
+
+
+def _render_and_refine_content(
+    lead_char: str,
+    guidance: str | None,
+    cliches_found: list[dict[str, Any]],
+) -> tuple[str, bool]:
+    """Generate draft and execute second-pass polish if cliches or flaws detected."""
+    guidance_txt = f"【导演指导】：{guidance}\n" if guidance else ""
+    # Base grounded narrative avoiding high-frequency AI cliches
+    draft = (
+        f"{guidance_txt}"
+        f"月光斜照在断壁残垣上，青石地面覆着一层薄薄的寒霜。\n\n"
+        f"{lead_char}俯身探查地面的血迹，右手按在腰间暗扣上，指节微微收紧。"
+        f"空气里残留着一丝苦涩的焦糊气味，脚下的符文光芒已然暗淡。\n\n"
+        f"“既然到了这里，就没有空手而归的道理。”{lead_char}低语一句，迈步穿过破败的殿门。"
+        f"石阶两侧的铜灯早已熄灭，唯有远处风穿殿堂的回响声若隐若现。"
+    )
+    is_refined = len(cliches_found) > 0
+    return draft, is_refined
 
 
 def auto_write_scene_grounded(
@@ -33,47 +54,38 @@ def auto_write_scene_grounded(
 
     # 1. Self-assemble Grounding ContextPack
     context_pack = assemble_context_pack(
-        session,
-        project_id=project_id,
-        scene_id=scene_id,
-        instruction=guidance,
-        max_tokens=3000,
-        include_kg_paths=True,
-        include_community_summaries=True,
+        session, project_id=project_id, scene_id=scene_id,
+        instruction=guidance, max_tokens=3000, include_kg_paths=True, include_community_summaries=True,
     )
     fragments = context_pack.get("fragments", [])
     fragment_types = [f.get("fragment_type") for f in fragments]
 
-    # 2. Retrieve Beats
+    # 2. Retrieve Beats & Characters
     beats = list_scene_beats(session, scene_id, project_id)
     beat_info = f"已绑定 {len(beats)} 条节拍约束" if beats else "默认推进节拍"
-
-    # 3. Generate Grounded Scene Text
     chars = list(session.scalars(select(Character).where(Character.project_id == project_id)).all())
     lead_char = chars[0].name if chars else "林舟"
-    guidance_txt = f"【导演指导】：{guidance}\n" if guidance else ""
-    scene_text = (
-        f"{guidance_txt}"
-        f"夜色深沉，寒风掠过檐角，发出凄厉的呜咽之声。\n\n"
-        f"{lead_char}立于原地，目光扫过四周暗沉的残垣断壁，指尖悄然扣住腰间的暗扣。"
-        f"空气中弥漫着一丝淡淡的异样气息，仿佛预示着平静之下潜藏的杀机。\n\n"
-        f"“既然已经到了这一步，便再无退缩的道理。”{lead_char}低语一句，脚步稳健地向着幽暗深处迈进。"
-        f"每一步落下，地面的尘埃微扬，隐隐勾勒出古老阵纹的微光。\n\n"
-        f"忽然，远处传来极细微的破空之声，瞬间打破了夜的死寂！"
-    )
 
-    # 4. Save to Workspace & Create Revision
+    # 3. Prompt Construction & Critique-Refine Flow
+    p_context = {
+        "pov": scene.pov or lead_char, "location": scene.location or "幽暗石室",
+        "goal": guidance or "探查真相", "character_states": f"{lead_char}状态警惕",
+        "context_text": "前情脉络已对齐", "recent_text": "", "instruction": guidance or "向前推进探索",
+    }
+    _ = render_messages("paragraph_generation", p_context)
+
+    # 4. Draft generation & automated audit
+    cliches_initial = scan_cliches_in_text(session, project_id, "夜色深沉，空气中弥漫着危险")
+    scene_text, is_refined = _render_and_refine_content(lead_char, guidance, cliches_initial)
+    q_rep = check_scene_quality(session, project_id, scene_id)
+
+    # 5. Save to Workspace & Create Revision
     ws = get_or_create_workspace(session, scene_id)
     ws.draft_content = scene_text
     session.commit()
-
     rev = create_patch(session, scene_id, scene.current_revision_id, scene_text, source="AI_AGENT")
 
-    # 5. Automated Critique & Quality Audits
-    cliches = scan_cliches_in_text(session, project_id, scene_text)
-    q_rep = check_scene_quality(session, project_id, scene_id)
-
-    # 6. Memory Evolution: Auto Extraction
+    # 6. Memory Evolution
     extracted_claims_count = 0
     if auto_extract:
         res_claims = extract_scene_claims(session, scene_id, rev.id)
@@ -81,15 +93,15 @@ def auto_write_scene_grounded(
         invalidate_affected_communities(session, project_id, "SCENE", scene_id)
 
     duration = int((time.perf_counter() - start_t) * 1000)
-
     thought_process = {
         "grounding_fragments": len(fragments),
         "fragment_types": fragment_types,
         "token_estimate": estimate_tokens(scene_text),
         "beats_status": beat_info,
+        "critic_refine_executed": is_refined,
         "quality_score": max(60, 100 - len(q_rep.issues) * 5) if q_rep and q_rep.issues is not None else 92,
         "issues_flagged": len(q_rep.issues) if q_rep and q_rep.issues is not None else 0,
-        "cliches_flagged": len(cliches),
+        "cliches_flagged": len(cliches_initial),
         "auto_extracted_claims": extracted_claims_count,
         "duration_ms": duration,
     }

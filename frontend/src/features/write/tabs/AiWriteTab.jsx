@@ -62,30 +62,36 @@ export function AiWriteTab({
   return (
     <div className="inspector-tab-content">
       <div className="ai-cockpit-card">
-        <span className="cockpit-title">AI 主创控制台</span>
+        <span className="cockpit-title">AI 主创操作台</span>
         <div className="ai-actions-stack">
-          <button className="btn-blue" onClick={handleAutoWriteScene} disabled={loading || !scene}>
+          <button className="btn-blue" onClick={handleAutoWriteScene} disabled={loading || !scene} style={{ height: '36px', fontSize: '13.5px' }}>
             {loading ? 'AI 正在创作中...' : 'AI 撰写当前场景正文'}
           </button>
           <div className="ai-actions-row">
-            <button className="btn-small" style={{ flex: 1 }} onClick={handleContinueWriting} disabled={loading || !scene}>
-              继续往下写一段
+            <button className="btn-small" style={{ flex: 1, height: '30px' }} onClick={handleContinueWriting} disabled={loading || !scene}>
+              智能续写一段
             </button>
-            <button className="btn-small" style={{ flex: 1 }} onClick={onAdvanceCompleted} disabled={loading}>
+            <button className="btn-small" style={{ flex: 1, height: '30px' }} onClick={onAdvanceCompleted} disabled={loading}>
               自动连载下一章
             </button>
           </div>
         </div>
       </div>
 
-      <div className="form-group-compact">
-        <label>给 AI 的剧情指导要求 (可选)</label>
+      <div className="ai-cockpit-card">
+        <span className="cockpit-title">给 AI 的剧情指导要求 (可选)</span>
         <textarea
-          rows={3}
+          rows={4}
           value={instruction}
           onChange={(e) => setInstruction(e.target.value)}
-          placeholder="例如：反派在此处突然反目，语言要有压迫感，多描写心理活动..."
+          placeholder="例如：反派在此处突然反目，语言要有压迫感，多描写心理活动与环境氛围..."
+          style={{ width: '100%', resize: 'vertical', minHeight: '80px', boxSizing: 'border-box' }}
         />
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <button className="btn-small btn-blue" onClick={handleAutoWriteScene} disabled={loading || !scene}>
+            按要求由 AI 创作
+          </button>
+        </div>
       </div>
 
       {thoughtProcess && <AgentThoughtStream thoughtProcess={thoughtProcess} />}

@@ -5,6 +5,7 @@ import { NoticeToast } from './layout/NoticeToast'
 import { AutoPlanModal } from './features/agent/AutoPlanModal'
 import { OutlineModal } from './features/plan/OutlineModal'
 import { ProjectSetupModal } from './features/settings/ProjectSetupModal'
+import { ModelConfigModal } from './features/settings/ModelConfigModal'
 import { useProject } from './hooks/useProject'
 import { useScene } from './hooks/useScene'
 import { useSession } from './hooks/useSession'
@@ -14,9 +15,7 @@ export default function App() {
   const [notice, setNotice] = useState('NovelAgent 小说主创工作台准备就绪')
   const [selectedChapterId, setSelectedChapterId] = useState(null)
   const [selectedChapter, setSelectedChapter] = useState(null)
-  const [showAutoPlan, setShowAutoPlan] = useState(false)
-  const [showOutline, setShowOutline] = useState(false)
-  const [showProjectModal, setShowProjectModal] = useState(false)
+  const [modal, setModal] = useState(null) // 'autoplan' | 'outline' | 'project' | 'model'
 
   useSession(setNotice)
   const projectState = useProject(setNotice)
@@ -41,76 +40,50 @@ export default function App() {
 
   const handleSelectChapter = async (id) => {
     setSelectedChapterId(id)
-    try {
-      setSelectedChapter(await api.getChapter(id))
-    } catch (err) { setNotice(err.message) }
+    try { setSelectedChapter(await api.getChapter(id)) } catch (err) { setNotice(err.message) }
   }
 
   return (
     <div className="app-layout">
       <AppHeader
-        projectName={projectState.project?.name}
-        currentPath={projectState.currentPath}
+        projectName={projectState.project?.name} currentPath={projectState.currentPath}
         selectedSceneTitle={sceneState.scene?.title}
-        onOpenProjectSettings={() => setShowProjectModal(true)}
-        onOpenOutlineModal={() => setShowOutline(true)}
+        onOpenProjectSettings={() => setModal('project')}
+        onOpenOutlineModal={() => setModal('outline')}
+        onOpenModelModal={() => setModal('model')}
         onQuickSave={() => sceneState.saveScene()}
-        canSave={Boolean(sceneState.scene)}
-        isSaving={sceneState.busy}
+        canSave={Boolean(sceneState.scene)} isSaving={sceneState.busy}
       />
       <main className="app-main-viewport">
         <WriteWorkspace
-          project={projectState.project}
-          tree={projectState.tree}
-          selectedChapterId={selectedChapterId}
-          selectedChapter={selectedChapter}
-          scene={sceneState.scene}
-          revisions={sceneState.revisions}
-          viewingRevision={sceneState.viewingRevision}
-          setViewingRevision={sceneState.setViewingRevision}
+          project={projectState.project} tree={projectState.tree}
+          selectedChapterId={selectedChapterId} selectedChapter={selectedChapter}
+          scene={sceneState.scene} revisions={sceneState.revisions}
+          viewingRevision={sceneState.viewingRevision} setViewingRevision={sceneState.setViewingRevision}
           busy={sceneState.busy}
           onCreateVolume={() => projectState.handleCreate?.('卷')}
           onCreateChapter={(vId) => projectState.handleCreate?.('章节', vId)}
           onCreateScene={(cId) => projectState.handleCreate?.('场景', cId)}
-          onSelectChapter={handleSelectChapter}
-          onSelectScene={sceneState.selectScene}
-          onSaveScene={sceneState.saveScene}
-          onViewRevision={sceneState.viewRevision}
-          onOpenAutoPlan={() => setShowAutoPlan(true)}
-          onRefreshTree={projectState.refreshTree}
+          onSelectChapter={handleSelectChapter} onSelectScene={sceneState.selectScene}
+          onSaveScene={sceneState.saveScene} onViewRevision={sceneState.viewRevision}
+          onOpenAutoPlan={() => setModal('autoplan')} onRefreshTree={projectState.refreshTree}
         />
       </main>
-
       <NoticeToast notice={notice} onDismiss={() => setNotice('')} />
-
       <AutoPlanModal
-        isOpen={showAutoPlan}
-        onClose={() => setShowAutoPlan(false)}
-        onPlanCompleted={async () => {
-          await projectState.refreshTree()
-          setShowAutoPlan(false)
-          setNotice('全书大纲与设定推演已完成')
-        }}
+        isOpen={modal === 'autoplan'} onClose={() => setModal(null)}
+        onPlanCompleted={async () => { await projectState.refreshTree(); setModal(null); setNotice('全书大纲推演完成') }}
       />
-
       <OutlineModal
-        isOpen={showOutline}
-        onClose={() => setShowOutline(false)}
-        currentSceneId={sceneState.scene?.id}
-        onOpenAutoPlan={() => {
-          setShowOutline(false)
-          setShowAutoPlan(true)
-        }}
+        isOpen={modal === 'outline'} onClose={() => setModal(null)}
+        currentSceneId={sceneState.scene?.id} onOpenAutoPlan={() => setModal('autoplan')}
       />
-
       <ProjectSetupModal
-        isOpen={showProjectModal}
-        onClose={() => setShowProjectModal(false)}
-        currentPath={projectState.currentPath}
-        setCurrentPath={projectState.setCurrentPath}
-        historyPaths={projectState.historyPaths}
-        onOpenProject={projectState.openProject}
+        isOpen={modal === 'project'} onClose={() => setModal(null)}
+        currentPath={projectState.currentPath} setCurrentPath={projectState.setCurrentPath}
+        historyPaths={projectState.historyPaths} onOpenProject={projectState.openProject}
       />
+      <ModelConfigModal isOpen={modal === 'model'} onClose={() => setModal(null)} />
     </div>
   )
 }

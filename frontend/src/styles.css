@@ -119,7 +119,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* =========================================================
-   1. Edge-to-Edge 100vh Root Shell
+   1. Edge-to-Edge 100vh Shell & Header
    ========================================================= */
 .app-layout {
   display: flex;
@@ -130,7 +130,6 @@ input:focus, textarea:focus, select:focus {
   background: #ffffff;
 }
 
-/* 48px Top Navigation Header */
 .app-header {
   height: 48px;
   min-height: 48px;
@@ -146,12 +145,7 @@ input:focus, textarea:focus, select:focus {
   z-index: 10;
 }
 .header-left { display: flex; align-items: center; gap: 10px; }
-.brand-title {
-  font-size: 14px;
-  font-weight: 750;
-  color: #09090b;
-  letter-spacing: -0.3px;
-}
+.brand-title { font-size: 14px; font-weight: 750; color: #09090b; letter-spacing: -0.3px; }
 .header-divider { color: #d4d4d8; font-weight: 300; }
 .project-badge {
   display: flex;
@@ -167,12 +161,7 @@ input:focus, textarea:focus, select:focus {
   cursor: pointer;
 }
 .project-badge:hover { background: #e4e4e7; }
-.project-path-tag {
-  font-size: 11px;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  font-weight: normal;
-}
+.project-path-tag { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
 .header-scene-pill {
   display: flex;
   align-items: center;
@@ -203,7 +192,6 @@ input:focus, textarea:focus, select:focus {
   padding: 2px 8px;
   border-radius: var(--radius-sm);
 }
-
 .header-right { display: flex; align-items: center; gap: 8px; }
 
 /* Main Full-Height Viewport */
@@ -216,7 +204,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* =========================================================
-   2. Three-Column Novel Studio Layout (100% Height)
+   2. Three-Column Studio Layout
    ========================================================= */
 .write-workspace-grid {
   display: flex;
@@ -225,7 +213,7 @@ input:focus, textarea:focus, select:focus {
   overflow: hidden;
 }
 
-/* Left Sidebar: 目录 (250px) */
+/* Left Sidebar */
 .chapter-sidebar {
   width: 250px;
   min-width: 250px;
@@ -248,16 +236,11 @@ input:focus, textarea:focus, select:focus {
   font-size: 12.5px;
   font-weight: 600;
   color: var(--text-secondary);
-  background: var(--bg-sidebar);
 }
 .tree-actions { display: flex; gap: 4px; }
 .tree-actions button { padding: 2px 6px; font-size: 11px; }
 
-.tree-scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 6px;
-}
+.tree-scroll-area { flex: 1; overflow-y: auto; padding: 8px 6px; }
 .tree-volume-group { margin-bottom: 10px; }
 .volume-label {
   display: flex;
@@ -283,10 +266,7 @@ input:focus, textarea:focus, select:focus {
   transition: background 0.1s ease;
 }
 .chapter-row:hover { background: #f4f4f5; }
-.chapter-row.active {
-  background: #e4e4e7;
-  font-weight: 600;
-}
+.chapter-row.active { background: #e4e4e7; font-weight: 600; }
 
 .scene-row {
   display: flex;
@@ -328,7 +308,7 @@ input:focus, textarea:focus, select:focus {
 }
 .sidebar-bottom-actions button { width: 100%; font-size: 12px; }
 
-/* Center: 正文阅读与编辑画卷 (100% Height, Flexible) */
+/* Center Writing Area */
 .writing-canvas-panel {
   flex: 1;
   height: 100%;
@@ -370,10 +350,8 @@ input:focus, textarea:focus, select:focus {
   color: #09090b;
   font-weight: 600;
 }
-
 .breadcrumb-right { display: flex; align-items: center; gap: 8px; }
 
-/* The Full-Height Writing Paper */
 .scene-editor-canvas {
   flex: 1;
   height: calc(100% - 42px);
@@ -431,52 +409,8 @@ input:focus, textarea:focus, select:focus {
   line-height: 2.1;
   color: #18181b;
 }
-.markdown-preview-pane h1 { font-size: 22px; margin: 20px 0 12px; color: #09090b; font-family: var(--font-sans); }
-.markdown-preview-pane h2 { font-size: 18px; margin: 16px 0 10px; color: #18181b; font-family: var(--font-sans); }
-.markdown-preview-pane h3 { font-size: 15px; margin: 14px 0 8px; color: #27272a; font-family: var(--font-sans); }
-.markdown-preview-pane blockquote {
-  border-left: 3px solid #2563eb;
-  margin: 14px 0;
-  padding: 6px 16px;
-  color: #52525b;
-  background: #f8fafc;
-  border-radius: 0 4px 4px 0;
-}
-.markdown-preview-pane pre {
-  background: #f8fafc;
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border-default);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  margin: 12px 0;
-}
-.markdown-preview-pane code {
-  background: #f4f4f5;
-  padding: 2px 5px;
-  border-radius: 3px;
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: #2563eb;
-}
 
-/* History Banner */
-.history-preview-banner {
-  background: #fffbeb;
-  border: 1px solid #fef08a;
-  border-radius: 4px;
-  color: #92400e;
-  padding: 6px 12px;
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-}
-
-/* =========================================================
-   3. Right: AI 主创 Agent 互动舱 (380px, 100% Height)
-   ========================================================= */
+/* Right AI Cockpit */
 .inspector-panel {
   width: 380px;
   min-width: 380px;
@@ -515,14 +449,9 @@ input:focus, textarea:focus, select:focus {
   background: #ffffff;
 }
 
-.inspector-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-}
+.inspector-body { flex: 1; overflow-y: auto; padding: 16px; }
 .inspector-tab-content { display: flex; flex-direction: column; gap: 14px; }
 
-/* AI Actions Cockpit */
 .ai-cockpit-card {
   background: #ffffff;
   border: 1px solid var(--border-default);
@@ -533,8 +462,11 @@ input:focus, textarea:focus, select:focus {
   gap: 10px;
   box-shadow: var(--shadow-sm);
 }
+.ai-cockpit-card input, .ai-cockpit-card textarea, .ai-cockpit-card select {
+  width: 100%;
+  box-sizing: border-box;
+}
 .cockpit-title { font-size: 13px; font-weight: 650; color: #09090b; }
-
 .ai-actions-stack { display: flex; flex-direction: column; gap: 8px; }
 .ai-actions-row { display: flex; gap: 6px; }
 
@@ -563,18 +495,10 @@ input:focus, textarea:focus, select:focus {
   border: 1px solid var(--border-default);
 }
 
-.chat-bubble {
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-.chat-bubble.user { background: #eff6ff; color: #1e3a8a; align-self: flex-end; }
-.chat-bubble.ai { background: #f4f4f5; color: #18181b; align-self: flex-start; }
-
-/* Modals & Dialogs */
-.modal-overlay, .diff-modal-backdrop, .conflict-modal-backdrop {
+/* =========================================================
+   3. Modal & Sub-panel Beautiful Card Styles (Outline/Codex)
+   ========================================================= */
+.modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(9, 9, 11, 0.45);
@@ -584,7 +508,7 @@ input:focus, textarea:focus, select:focus {
   justify-content: center;
   z-index: 500;
 }
-.modal-content, .diff-modal-card, .conflict-modal-card {
+.modal-content {
   background: #ffffff;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
@@ -593,17 +517,103 @@ input:focus, textarea:focus, select:focus {
   display: flex;
   flex-direction: column;
 }
-.modal-header, .diff-header {
-  padding: 14px 18px;
+.modal-header {
+  padding: 14px 20px;
   border-bottom: 1px solid var(--border-default);
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #fafafa;
 }
-.modal-header h3, .diff-header h4 { font-size: 14px; color: #09090b; font-weight: 600; }
+.modal-header h3 { font-size: 14px; color: #09090b; font-weight: 650; }
 .btn-close { background: transparent; border: 0; font-size: 14px; color: var(--text-muted); cursor: pointer; box-shadow: none; }
 .btn-close:hover { color: #09090b; }
+
+/* Sub-panel navigation inside Modals */
+.subpanel-nav-pills {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border-default);
+  padding-bottom: 10px;
+}
+.subpanel-pill-btn {
+  padding: 5px 12px;
+  font-size: 12.5px;
+  border: 1px solid var(--border-default);
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-weight: 500;
+  box-shadow: none;
+}
+.subpanel-pill-btn:hover { background: #f4f4f5; color: #09090b; }
+.subpanel-pill-btn.active {
+  background: #09090b;
+  border-color: #09090b;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Card list & Form containers */
+.continuity-subpanel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.continuity-form-card {
+  background: #ffffff;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+}
+.continuity-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+}
+.continuity-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.continuity-card {
+  background: #ffffff;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.12s;
+}
+.continuity-card:hover { border-color: #cbd5e1; }
+.continuity-card.active { border-color: #2563eb; background: #fafcff; }
+.continuity-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-desc { font-size: 12.5px; color: #52525b; line-height: 1.55; }
+.tag-row { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; }
+.badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: #f4f4f5;
+  color: #3f3f46;
+  border: 1px solid #e4e4e7;
+}
+.badge.blue { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.badge.gray { background: #f4f4f5; color: #71717a; border-color: #e4e4e7; }
+.req-tag { font-size: 11px; padding: 2px 6px; border-radius: 3px; background: #f4f4f5; color: #52525b; }
+.status-select { font-size: 11.5px; padding: 2px 6px; border-radius: 4px; }
+.empty-state { text-align: center; color: var(--text-muted); padding: 32px 0; font-size: 13px; }
 
 /* Toast */
 .notice-toast {

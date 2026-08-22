@@ -103,6 +103,9 @@ async def _execute_generation_async(
             run.started_at = started
             prompt, model = run.prompt, run.actual_model
             parameters = run.request_snapshot.get("parameters", {}) if run.request_snapshot else {}
+            messages = run.request_snapshot.get("messages") if run.request_snapshot else None
+            if not messages:
+                messages = [{"role": "user", "content": prompt}]
             db.add(GenerationRunEvent(
                 run_id=run_id, event_type="status_change",
                 payload={"run_id": run_id, "status": "RUNNING", "model": model},
@@ -116,7 +119,7 @@ async def _execute_generation_async(
 
         async for item in gateway.stream_chat(
             model=model,
-            messages=[{"role": "user", "content": prompt}],
+            messages=messages,
             temperature=parameters.get("temperature", 0.7),
             max_tokens=parameters.get("max_tokens"),
             api_key=api_key,

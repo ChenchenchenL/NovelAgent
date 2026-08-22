@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from ...domain.models import Chapter, GenerationRun, GenerationRunEvent, GenerationWorkspace, ModelInvocation, Scene, SceneRevision
 from ...integrations.model_gateway import ModelConfig, ModelGateway, ModelRouter
-from ...integrations.prompt_templates import render_prompt
+from ...integrations.prompt_templates import render_messages, render_prompt
 from .generation_runner import active_cancel_tokens, start_runner_thread, stream_run_events
 
 logger = logging.getLogger(__name__)
@@ -74,6 +74,7 @@ def create_generation_run(
         "pov": scene.pov or "主人公",
         "location": scene.location or "未定",
         "goal": scene.entry_contract.get("goal", "") if scene.entry_contract else "",
+        "character_states": "当前在场角色状态正常",
         "context_text": context_text,
         "recent_text": recent_text,
         "instruction": getattr(payload, "instruction", "继续写作") or "继续写作",
@@ -82,6 +83,11 @@ def create_generation_run(
         task_type,
         prompt_context,
         getattr(payload, "prompt_template", None),
+    )
+    rendered_messages = render_messages(
+        task_type,
+        prompt_context,
+        custom_template=getattr(payload, "prompt_template", None),
     )
 
     chapter = session.get(Chapter, scene.chapter_id)
@@ -100,6 +106,7 @@ def create_generation_run(
             "task_type": task_type,
             "tier": tier,
             "model": model,
+            "messages": rendered_messages,
             "parameters": getattr(payload, "parameters", None) or {},
             "target_range": getattr(payload, "target_range", None),
         },
