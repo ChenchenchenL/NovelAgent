@@ -37,13 +37,13 @@ export function FsckModal({ onClose }) {
     <div className="modal-overlay">
       <div className="modal-content fsck-modal">
         <div className="modal-header">
-          <h3>🩺 跨介质一致性检查 (FSCK)</h3>
-          <button className="btn-close" onClick={onClose}>×</button>
+          <h3>跨介质一致性检查 (FSCK)</h3>
+          <button className="btn-close" onClick={onClose}>✕</button>
         </div>
         {msg && <div className="notice-bar">{msg}</div>}
         <div className="fsck-toolbar">
           <button className="btn-secondary" disabled={loading} onClick={() => handleRunFsck(false)}>重新检查</button>
-          <button className="btn-primary" disabled={loading} onClick={() => handleRunFsck(true)}>🛠️ 一键自动修复缺失文件与索引</button>
+          <button className="btn-primary" disabled={loading} onClick={() => handleRunFsck(true)}>自动修复缺失文件与索引</button>
         </div>
         {report && (
           <div className="fsck-results">

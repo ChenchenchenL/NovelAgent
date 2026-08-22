@@ -17,7 +17,7 @@ export function ChapterTree({
         className={`chapter-item ${selectedChapterId === ch.id ? 'active' : ''}`}
         onClick={() => onSelectChapter(ch.id)}
       >
-        <span>第 {ch.sequence} 章 {ch.title}</span>
+        <span className="chapter-item-name">第 {ch.sequence} 章 {ch.title}</span>
         <span className="badge">{ch.status}</span>
         <button
           className="mini-btn"
@@ -25,6 +25,7 @@ export function ChapterTree({
             e.stopPropagation()
             onCreateScene(ch.id)
           }}
+          title="新建场景"
         >
           + 场景
         </button>
@@ -35,7 +36,7 @@ export function ChapterTree({
           className={`tree-scene ${selectedSceneId === sc.id ? 'active' : ''}`}
           onClick={() => onSelectScene(sc.id)}
         >
-          <span>📄 {sc.sequence}. {sc.title}</span>
+          <span className="scene-item-name">{sc.sequence}. {sc.title}</span>
           <span className="badge-small">{sc.status}</span>
         </div>
       ))}

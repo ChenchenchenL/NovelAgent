@@ -36,17 +36,17 @@ export function KgBrowserPanel() {
           <option value="">选择起点实体...</option>
           {nodes.map((n) => <option key={n.id} value={n.id}>[{n.node_type}] {n.name}</option>)}
         </select>
-        <span>➡️</span>
+        <span>至</span>
         <select value={dstNode} onChange={(e) => setDstNode(e.target.value)} style={{ flex: 1 }}>
           <option value="">选择终点实体...</option>
           {nodes.map((n) => <option key={n.id} value={n.id}>[{n.node_type}] {n.name}</option>)}
         </select>
-        <button className="btn-primary" onClick={handleQueryPath}>查找路径</button>
+        <button className="btn-primary" onClick={handleQueryPath}>查找关系路径</button>
       </div>
 
       {path && (
         <div className="continuity-card" style={{ marginBottom: '16px', background: '#252830' }}>
-          <h4>🔗 多跳关系路径 ({path.length} 跳)</h4>
+          <h4>多跳关系路径 ({path.length} 跳)</h4>
           {path.length === 0 ? <p>未发现有效连接路径</p> : (
             <div style={{ marginTop: '8px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {path.map((step, idx) => (
@@ -63,7 +63,7 @@ export function KgBrowserPanel() {
       <div className="continuity-list" style={{ marginTop: '10px' }}>
         {edges.slice(0, 15).map((e) => (
           <div key={e.id} className="continuity-card">
-            <span><strong>{e.edge_type}</strong> (节点#{e.source_node_id} ➔ 节点#{e.target_node_id})</span>
+            <span><strong>{e.edge_type}</strong> (节点#{e.source_node_id} 到 节点#{e.target_node_id})</span>
             <span className="badge success">{e.modality}</span>
           </div>
         ))}

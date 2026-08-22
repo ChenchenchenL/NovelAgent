@@ -29,14 +29,8 @@ export function CommunityManager() {
     e.preventDefault()
     if (!name.trim()) return
     try {
-      await api.createCommunity({
-        name: name.trim(),
-        community_type: type,
-        tags: tag.trim() ? [tag.trim()] : [],
-      })
-      setName('')
-      setTag('')
-      loadCommunities()
+      await api.createCommunity({ name: name.trim(), community_type: type, tags: tag.trim() ? [tag.trim()] : [] })
+      setName(''); setTag(''); loadCommunities()
     } catch (e) { console.error(e) }
   }
 
@@ -58,36 +52,21 @@ export function CommunityManager() {
 
   return (
     <div className="continuity-subpanel">
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-        <button className="btn-primary" onClick={handleAutoDetect}>⚡ 自动检测逻辑社区 (按卷/剧情线)</button>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+        <button className="btn-primary" onClick={handleAutoDetect}>自动聚类逻辑社区 (按卷/剧情线)</button>
       </div>
 
-      <form onSubmit={handleCreate} style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-        <input
-          type="text"
-          placeholder="社区名称 (如: 仙盟与各大门派)..."
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{ flex: 1 }}
-        />
+      <form onSubmit={handleCreate} className="continuity-form">
+        <input placeholder="社区名称 (如: 仙盟与各大门派)..." value={name} onChange={(e) => setName(e.target.value)} style={{ flex: 1 }} />
         <select value={type} onChange={(e) => setType(e.target.value)}>
-          <option value="CUSTOM">自定义社区</option>
-          <option value="FACTION">阵营社区</option>
-          <option value="PLOT_THREAD">剧情线社区</option>
-          <option value="VOLUME">卷社区</option>
+          <option value="CUSTOM">自定义</option><option value="FACTION">阵营</option><option value="PLOT_THREAD">剧情线</option><option value="VOLUME">卷</option>
         </select>
-        <input
-          type="text"
-          placeholder="标签 (可选)..."
-          value={tag}
-          onChange={(e) => setTag(e.target.value)}
-          style={{ width: '100px' }}
-        />
-        <button type="submit" className="btn-primary">➕ 创建社区</button>
+        <input placeholder="标签..." value={tag} onChange={(e) => setTag(e.target.value)} style={{ width: '80px' }} />
+        <button type="submit" className="btn-primary">创建社区</button>
       </form>
 
       <h4>逻辑社区列表 ({communities.length} 个)</h4>
-      <div className="continuity-list" style={{ marginTop: '8px', marginBottom: '16px' }}>
+      <div className="continuity-list" style={{ marginTop: '6px', marginBottom: '12px' }}>
         {communities.map((c) => (
           <div key={c.id} className={`continuity-card ${selectedComm?.id === c.id ? 'active' : ''}`} style={{ cursor: 'pointer' }} onClick={() => handleSelect(c)}>
             <div className="continuity-card-header">
@@ -101,13 +80,13 @@ export function CommunityManager() {
       {selectedComm && (
         <div className="continuity-card">
           <div className="continuity-card-header">
-            <strong>{selectedComm.name} - 社区摘要与派生缓存</strong>
-            <button className="btn-small btn-primary" onClick={() => handleGenerateSummary(selectedComm.id)}>⚡ 生成/重建摘要</button>
+            <strong>{selectedComm.name} - 摘要缓存</strong>
+            <button className="btn-small btn-primary" onClick={() => handleGenerateSummary(selectedComm.id)}>生成/重建摘要</button>
           </div>
           <div style={{ marginTop: '8px' }}>
             {summaries.length === 0 && <p className="empty-state">该社区尚未生成摘要缓存</p>}
             {summaries.map((s) => (
-              <div key={s.id} style={{ marginTop: '8px', fontSize: '13px', background: '#1c1f24', padding: '8px', borderRadius: '4px' }}>
+              <div key={s.id} style={{ marginTop: '6px', fontSize: '13px', background: '#1c1830', padding: '8px', borderRadius: '4px' }}>
                 <span className="badge success">[{s.summary_type}]</span> (Tokens: {s.token_count})
                 <p style={{ marginTop: '4px', whiteSpace: 'pre-wrap' }}>{s.content}</p>
               </div>

@@ -68,7 +68,7 @@ export function LocationMovementManager() {
         </form>
         <form onSubmit={handleAddProfile} className="continuity-form-inline">
           <select value={fromId} onChange={e => setFromId(e.target.value)}>{locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
-          <span>→</span>
+          <span>至</span>
           <select value={toId} onChange={e => setToId(e.target.value)}>{locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
           <select value={travelMode} onChange={e => setTravelMode(e.target.value)}>
             <option value="WALK">步行 (WALK)</option>
@@ -85,8 +85,8 @@ export function LocationMovementManager() {
         {profiles.map(p => (
           <div key={p.id} className="continuity-card">
             <div className="continuity-card-header">
-              <span>📍 <strong>{locMap[p.from_location_id] || p.from_location_id}</strong> → <strong>{locMap[p.to_location_id] || p.to_location_id}</strong></span>
-              <span className="badge info">{p.travel_mode} : ≥ {p.min_duration_minutes} 分钟</span>
+              <span><strong>{locMap[p.from_location_id] || p.from_location_id}</strong> 到 <strong>{locMap[p.to_location_id] || p.to_location_id}</strong></span>
+              <span className="badge info">{p.travel_mode} : 不少于 {p.min_duration_minutes} 分钟</span>
             </div>
           </div>
         ))}

@@ -56,7 +56,7 @@ export function VoiceFingerprintPanel() {
           {characters.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
         <button className="btn-primary" onClick={handleExtract} disabled={loading || !selectedCharId}>
-          {loading ? '提取中...' : '🧬 从正典提取指纹'}
+          {loading ? '提取中...' : '从正典提取指纹'}
         </button>
       </div>
 

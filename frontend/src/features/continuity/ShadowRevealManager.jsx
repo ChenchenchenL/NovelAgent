@@ -44,13 +44,13 @@ export function ShadowRevealManager({ currentSceneId }) {
       await api.revealShadowEntity(shadowId, {
         canonical_character_id: Number(canonicalId),
         reveal_scene_id: currentSceneId || 1,
-        evidence: evidence || '作者决议确认掉马',
+        evidence: evidence || '作者决议确认身份揭晓',
       })
       setSelectedShadowId(null)
       setEvidence('')
       await loadData()
     } catch (err) {
-      setErrorMsg(err.message || '掉马合并失败')
+      setErrorMsg(err.message || '身份合并失败')
     }
   }
 
@@ -67,8 +67,8 @@ export function ShadowRevealManager({ currentSceneId }) {
         {shadows.map(s => (
           <div key={s.id} className="continuity-card">
             <div className="continuity-card-header">
-              <strong>🎭 {s.display_name}</strong>
-              <span className={`badge ${s.revealed ? 'success' : 'warning'}`}>{s.revealed ? '已掉马' : '未揭晓'}</span>
+              <strong>{s.display_name}</strong>
+              <span className={`badge ${s.revealed ? 'success' : 'warning'}`}>{s.revealed ? '已揭晓' : '未揭晓'}</span>
             </div>
             {s.revealed ? (
               <div className="card-desc">真实身份: <strong>{charMap[s.canonical_character_id] || `人物#${s.canonical_character_id}`}</strong></div>
@@ -79,12 +79,12 @@ export function ShadowRevealManager({ currentSceneId }) {
                     <select value={canonicalId} onChange={e => setCanonicalId(e.target.value)}>
                       {characters.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
-                    <input placeholder="掉马证据/线索" value={evidence} onChange={e => setEvidence(e.target.value)} />
-                    <button onClick={() => handleReveal(s.id)} className="btn-sm btn-primary">确认掉马</button>
+                    <input placeholder="揭晓证据/线索" value={evidence} onChange={e => setEvidence(e.target.value)} />
+                    <button onClick={() => handleReveal(s.id)} className="btn-sm btn-primary">确认揭晓</button>
                     <button onClick={() => setSelectedShadowId(null)} className="btn-sm">取消</button>
                   </>
                 ) : (
-                  <button onClick={() => setSelectedShadowId(s.id)} className="btn-sm">进行掉马关联</button>
+                  <button onClick={() => setSelectedShadowId(s.id)} className="btn-sm">进行身份关联</button>
                 )}
               </div>
             )}

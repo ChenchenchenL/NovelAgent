@@ -69,10 +69,10 @@ export function ItemConservationManager({ currentSceneId }) {
         {items.map(item => (
           <div key={item.id} className="continuity-card">
             <div className="continuity-card-header">
-              <strong>🗡️ {item.name}</strong>
+              <strong>{item.name}</strong>
               <span className={`badge ${item.current_state === 'DESTROYED' ? 'danger' : 'info'}`}>{item.current_state}</span>
             </div>
-            <div className="card-desc">持有者: <strong>{item.current_holder || '无 (未被持有)'}</strong> {item.unique_item && '• 唯一专属'}</div>
+            <div className="card-desc">持有者: <strong>{item.current_holder || '无 (未被持有)'}</strong> {item.unique_item && '· 唯一专属'}</div>
             {item.current_state !== 'DESTROYED' && (
               <div className="action-row">
                 {selectedItemId === item.id ? (

@@ -32,7 +32,7 @@ export function ModelStatsDashboard() {
     <div className="continuity-subpanel">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <h4>模型治理、Token 消耗与成本统计</h4>
-        <button className="btn-small btn-primary" onClick={handleAggregate}>⚡ 重新聚合今日统计</button>
+        <button className="btn-small btn-primary" onClick={handleAggregate}>重新聚合今日统计</button>
       </div>
 
       {summary && (

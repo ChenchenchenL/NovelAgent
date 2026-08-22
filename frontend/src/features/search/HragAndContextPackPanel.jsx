@@ -38,7 +38,7 @@ export function HragAndContextPackPanel({ currentSceneId }) {
               style={{ flex: 1 }}
             />
             <button className="btn-primary" onClick={handleAssemble} disabled={loading}>
-              {loading ? '装配中...' : '📦 装配 7 层上下文包'}
+              {loading ? '装配中...' : '装配 7 层上下文包'}
             </button>
           </div>
 

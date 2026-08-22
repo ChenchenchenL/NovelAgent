@@ -42,9 +42,9 @@ export function QualityInspectorPanel({ currentSceneId }) {
   return (
     <div className="continuity-subpanel">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h4>场景文本质量与反套话审查</h4>
+        <h4>场景文本质量与套话审查</h4>
         <button className="btn-primary" onClick={handleRunCheck} disabled={loading}>
-          {loading ? '检查中...' : '🔍 执行全方位质检'}
+          {loading ? '检查中...' : '执行质量检查'}
         </button>
       </div>
 
@@ -54,13 +54,13 @@ export function QualityInspectorPanel({ currentSceneId }) {
             <div className="continuity-card-header">
               <span><strong>检测问题数: {report.summary.total}</strong> (硬冲突: {report.summary.blocking}, 警告: {report.summary.warning}, 建议: {report.summary.advisory})</span>
               <span className={`badge ${report.summary.has_blocking ? 'danger' : (report.summary.warning > 0 ? 'warning' : 'success')}`}>
-                {report.summary.has_blocking ? '存在硬阻断' : (report.summary.warning > 0 ? '需作者关注' : '质量优良')}
+                {report.summary.has_blocking ? '存在硬阻断' : (report.summary.warning > 0 ? '需关注' : '质量良好')}
               </span>
             </div>
           </div>
 
           <div className="continuity-list">
-            {report.issues.length === 0 && <div className="empty-state">未发现任何语义重复、套话或水字数问题</div>}
+            {report.issues.length === 0 && <div className="empty-state">未发现语义重复、套话或水字数问题</div>}
             {report.issues.map((iss, idx) => (
               <div key={idx} className="continuity-card">
                 <div className="continuity-card-header">
@@ -72,12 +72,12 @@ export function QualityInspectorPanel({ currentSceneId }) {
                   </span>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     <button className="btn-small" onClick={() => handleFeedback(iss.issue_type, 'ACCEPT')}>采纳建议</button>
-                    <button className="btn-small" onClick={() => handleFeedback(iss.issue_type, 'IGNORE', 'THIS_SCENE')}>本场景忽略</button>
-                    <button className="btn-small" onClick={() => handleFeedback(iss.issue_type, 'IGNORE', 'ALWAYS')}>全局忽略</button>
+                    <button className="btn-small" onClick={() => handleFeedback(iss.issue_type, 'IGNORE', 'THIS_SCENE')}>本场放行</button>
+                    <button className="btn-small" onClick={() => handleFeedback(iss.issue_type, 'IGNORE', 'ALWAYS')}>全局放行</button>
                   </div>
                 </div>
                 <p style={{ marginTop: '6px', fontSize: '13px' }}>{iss.description}</p>
-                <div style={{ marginTop: '4px', fontSize: '12px', color: '#888' }}>💡 建议: {iss.suggestion}</div>
+                <div style={{ marginTop: '4px', fontSize: '12px', color: '#888' }}>建议: {iss.suggestion}</div>
               </div>
             ))}
           </div>

@@ -40,7 +40,7 @@ export function FtsSearchPanel() {
           <option value="SUMMARY">摘要 (SUMMARY)</option>
         </select>
         <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? '搜索中...' : '🔍 检索'}
+          {loading ? '搜索中...' : '检索'}
         </button>
       </form>
 

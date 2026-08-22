@@ -20,7 +20,7 @@ export function EvidenceViewer({ candidate, onSaveDecision, onCancel }) {
   if (!candidate) {
     return (
       <div className="evidence-empty-panel">
-        <p>👈 请从左侧候选列表中选择一项事实主张，查看原文证据与进行仲裁修正</p>
+        <p>请从左侧候选列表中选择一项事实主张，查看原文证据并进行仲裁修正</p>
       </div>
     )
   }
@@ -85,7 +85,7 @@ export function EvidenceViewer({ candidate, onSaveDecision, onCancel }) {
 
         <div className="evidence-actions">
           <button className="btn-secondary" onClick={onCancel}>取消选择</button>
-          <button className="btn-primary" onClick={handleConfirm}>✓ 修正并采纳为正典</button>
+          <button className="btn-primary" onClick={handleConfirm}>修正并采纳为正典</button>
         </div>
       </div>
     </div>

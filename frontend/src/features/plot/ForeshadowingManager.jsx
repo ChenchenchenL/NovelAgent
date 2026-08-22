@@ -53,12 +53,12 @@ export function ForeshadowingManager({ currentSceneId }) {
   return (
     <div className="continuity-subpanel">
       {scheduled.length > 0 && (
-        <div className="warning-banner" style={{ background: '#1e293b', borderColor: '#3b82f6', marginBottom: '12px' }}>
-          <strong>🎯 当前场景伏笔调度建议 ({scheduled.length} 条):</strong>
+        <div className="warning-banner" style={{ marginBottom: '12px' }}>
+          <strong>当前场景伏笔调度建议 ({scheduled.length} 条):</strong>
           <div className="tag-row" style={{ marginTop: '4px' }}>
             {scheduled.map(s => (
               <span key={s.foreshadowing_id} className={`badge ${s.is_triggered ? 'success' : (s.is_overdue ? 'danger' : 'gray')}`}>
-                {s.name} {s.is_triggered ? '⚡条件满足' : (s.is_overdue ? '⚠️超期' : '窗口内')}
+                {s.name} {s.is_triggered ? '条件满足' : (s.is_overdue ? '超期未收' : '窗口内')}
               </span>
             ))}
           </div>
@@ -85,7 +85,7 @@ export function ForeshadowingManager({ currentSceneId }) {
         {foreshadowings.map(f => (
           <div key={f.id} className="continuity-card">
             <div className="continuity-card-header">
-              <span><strong>🪝 {f.name}</strong> <span className="badge">{f.priority}</span></span>
+              <span><strong>{f.name}</strong> <span className="badge">{f.priority}</span></span>
               {f.status === 'SETUP' && <button onClick={() => handlePayoff(f.id)} className="btn-primary small">回收伏笔</button>}
               {f.status === 'PAYOFF' && <span className="badge success">已回收 (场景 #{f.payoff_scene_id})</span>}
             </div>

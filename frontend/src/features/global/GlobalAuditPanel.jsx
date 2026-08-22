@@ -33,27 +33,27 @@ export function GlobalAuditPanel() {
     <div className="continuity-subpanel">
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
         <button className="btn-small btn-primary" onClick={() => handleRunAudit('CHARACTER_ARC')} disabled={loading}>
-          🎭 人物弧回顾
+          人物弧回顾
         </button>
         <button className="btn-small btn-primary" onClick={() => handleRunAudit('RELATIONSHIP_NETWORK')} disabled={loading}>
-          🕸️ 关系网全景
+          关系网全景
         </button>
         <button className="btn-small btn-primary" onClick={() => handleRunAudit('FORESHADOW_AUDIT')} disabled={loading}>
-          🎯 伏笔兑现审计
+          伏笔兑现审计
         </button>
         <button className="btn-small btn-primary" onClick={() => handleRunAudit('PLOT_RUPTURE')} disabled={loading}>
-          🚨 剧情断裂检测
+          剧情断裂检测
         </button>
       </div>
 
       {activeReport && (
-        <div className="continuity-card" style={{ marginBottom: '16px', background: '#252028' }}>
+        <div className="continuity-card" style={{ marginBottom: '16px', background: '#221c32' }}>
           <div className="continuity-card-header">
             <strong>全书审计报告: [{activeReport.report_type}]</strong>
             <span className="badge success">耗时: {activeReport.duration_ms}ms</span>
           </div>
           <p style={{ marginTop: '8px', fontSize: '14px' }}>{activeReport.summary}</p>
-          <pre style={{ marginTop: '8px', fontSize: '12px', background: '#18151c', padding: '8px', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+          <pre style={{ marginTop: '8px', fontSize: '12px', background: '#161224', padding: '8px', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
             {JSON.stringify(activeReport.content, null, 2)}
           </pre>
         </div>

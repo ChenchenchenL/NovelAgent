@@ -54,7 +54,7 @@ export function CharacterManager() {
           <div key={c.id} className="continuity-card">
             <div className="continuity-card-header">
               <strong>{c.name}</strong>
-              <button onClick={() => handleDelete(c.id)} className="btn-icon danger">✕</button>
+              <button onClick={() => handleDelete(c.id)} className="btn-sm btn-danger">删除</button>
             </div>
             {c.aliases?.length > 0 && <div className="tag-row">{c.aliases.map(a => <span key={a} className="badge">{a}</span>)}</div>}
             {c.background && <p className="card-desc">{c.background}</p>}

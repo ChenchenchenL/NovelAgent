@@ -1,37 +1,18 @@
-import { useState } from 'react'
-import { api } from './api/client'
-import { ChapterControl } from './components/ChapterControl'
-import { ChapterTree } from './components/ChapterTree'
-import { SceneEditor } from './components/SceneEditor'
-import { SetupPanel } from './components/SetupPanel'
-import { ModelConfigPanel } from './components/ModelConfigPanel'
-import { ImportManagerModal } from './components/ImportManagerModal'
-import { FsckModal } from './components/FsckModal'
-import { BackupExportModal } from './components/BackupExportModal'
-import { ContinuityModal } from './components/ContinuityModal'
-import { PlotModal } from './components/PlotModal'
-import { SearchModal } from './components/SearchModal'
-import { QualityModal } from './components/QualityModal'
-import { GlobalIntelligenceModal } from './components/GlobalIntelligenceModal'
-import { Topbar } from './components/Topbar'
+import React, { useState } from 'react'
+import { ActivityBar, VIEWS } from './layout/ActivityBar'
+import { AppHeader } from './layout/AppHeader'
+import { ViewRouter } from './layout/ViewRouter'
+import { NoticeToast } from './layout/NoticeToast'
 import { useProject } from './hooks/useProject'
 import { useScene } from './hooks/useScene'
 import { useSession } from './hooks/useSession'
+import { api } from './api/client'
 
 export default function App() {
-  const [notice, setNotice] = useState('准备就绪')
+  const [activeView, setActiveView] = useState(VIEWS.WRITE)
+  const [notice, setNotice] = useState('NovelAgent 正典系统准备就绪')
   const [selectedChapterId, setSelectedChapterId] = useState(null)
   const [selectedChapter, setSelectedChapter] = useState(null)
-  const [tab, setTab] = useState('editor')
-  const [showModelConfig, setShowModelConfig] = useState(false)
-  const [showImportModal, setShowImportModal] = useState(false)
-  const [showFsckModal, setShowFsckModal] = useState(false)
-  const [showBackupModal, setShowBackupModal] = useState(false)
-  const [showContinuityModal, setShowContinuityModal] = useState(false)
-  const [showPlotModal, setShowPlotModal] = useState(false)
-  const [showSearchModal, setShowSearchModal] = useState(false)
-  const [showQualityModal, setShowQualityModal] = useState(false)
-  const [showGlobalModal, setShowGlobalModal] = useState(false)
 
   useSession(setNotice)
   const projectState = useProject(setNotice)
@@ -77,96 +58,35 @@ export default function App() {
   }
 
   return (
-    <main className="app-shell">
-      <Topbar
-        notice={notice}
-        showModelConfig={showModelConfig}
-        onToggleModelConfig={() => setShowModelConfig(!showModelConfig)}
-        onOpenImport={() => setShowImportModal(true)}
-        onOpenFsck={() => setShowFsckModal(true)}
-        onOpenBackup={() => setShowBackupModal(true)}
-        onOpenContinuity={() => setShowContinuityModal(true)}
-        onOpenPlot={() => setShowPlotModal(true)}
-        onOpenSearch={() => setShowSearchModal(true)}
-        onOpenQuality={() => setShowQualityModal(true)}
-        onOpenGlobal={() => setShowGlobalModal(true)}
-      />
-      {showModelConfig ? (
-        <ModelConfigPanel />
-      ) : (
-        <SetupPanel
+    <div className="app-layout">
+      <ActivityBar activeView={activeView} onViewChange={setActiveView} />
+      <div className="app-main-viewport">
+        <AppHeader
+          projectName={projectState.project?.name}
           currentPath={projectState.currentPath}
-          setCurrentPath={projectState.setCurrentPath}
-          historyPaths={projectState.historyPaths}
-          setHistoryPaths={projectState.setHistoryPaths}
-          onChooseDirectory={projectState.chooseDirectory}
-          onOpenProject={projectState.openProject}
-          disabled={!projectState.currentPath}
+          selectedSceneTitle={sceneState.scene?.title}
+          notice={notice}
+          onOpenSettings={() => setActiveView(VIEWS.SETTINGS)}
+          onQuickSave={() => sceneState.saveScene()}
+          canSave={Boolean(sceneState.scene)}
+          isSaving={sceneState.busy}
         />
-      )}
-      <div className="workspace">
-        <ChapterTree
-          tree={projectState.tree}
-          project={projectState.project}
-          selectedChapterId={selectedChapterId}
-          selectedSceneId={sceneState.scene?.id}
-          onCreateVolume={() => handleCreate('卷')}
-          onCreateChapter={(vId) => handleCreate('章节', vId)}
-          onCreateScene={(cId) => handleCreate('场景', cId)}
-          onSelectChapter={handleSelectChapter}
-          onSelectScene={sceneState.selectScene}
-        />
-        <SceneEditor
-          scene={sceneState.scene}
-          tab={tab}
-          setTab={setTab}
-          viewingRevision={sceneState.viewingRevision}
-          setViewingRevision={sceneState.setViewingRevision}
-          revisions={sceneState.revisions}
-          busy={sceneState.busy}
-          onChangeSceneStatus={sceneState.changeSceneStatus}
-          onSaveScene={sceneState.saveScene}
-          onViewRevision={sceneState.viewRevision}
-        />
-        <ChapterControl selectedChapter={selectedChapter} onChangeStatus={handleChangeChapterStatus} />
+        <main className="app-view-body">
+          <ViewRouter
+            activeView={activeView}
+            projectState={projectState}
+            sceneState={sceneState}
+            selectedChapterId={selectedChapterId}
+            selectedChapter={selectedChapter}
+            onCreateVolume={() => handleCreate('卷')}
+            onCreateChapter={(vId) => handleCreate('章节', vId)}
+            onCreateScene={(cId) => handleCreate('场景', cId)}
+            onSelectChapter={handleSelectChapter}
+            onChangeChapterStatus={handleChangeChapterStatus}
+          />
+        </main>
+        <NoticeToast notice={notice} onDismiss={() => setNotice('')} />
       </div>
-      {showImportModal && <ImportManagerModal onClose={() => setShowImportModal(false)} onImportCompleted={projectState.refreshTree} />}
-      {showFsckModal && <FsckModal onClose={() => setShowFsckModal(false)} />}
-      {showBackupModal && <BackupExportModal onClose={() => setShowBackupModal(false)} />}
-      {showContinuityModal && (
-        <ContinuityModal
-          isOpen={showContinuityModal}
-          onClose={() => setShowContinuityModal(false)}
-          currentSceneId={sceneState.scene?.id}
-        />
-      )}
-      {showPlotModal && (
-        <PlotModal
-          isOpen={showPlotModal}
-          onClose={() => setShowPlotModal(false)}
-          currentSceneId={sceneState.scene?.id}
-        />
-      )}
-      {showSearchModal && (
-        <SearchModal
-          isOpen={showSearchModal}
-          onClose={() => setShowSearchModal(false)}
-          currentSceneId={sceneState.scene?.id}
-        />
-      )}
-      {showQualityModal && (
-        <QualityModal
-          isOpen={showQualityModal}
-          onClose={() => setShowQualityModal(false)}
-          currentSceneId={sceneState.scene?.id}
-        />
-      )}
-      {showGlobalModal && (
-        <GlobalIntelligenceModal
-          isOpen={showGlobalModal}
-          onClose={() => setShowGlobalModal(false)}
-        />
-      )}
-    </main>
+    </div>
   )
 }

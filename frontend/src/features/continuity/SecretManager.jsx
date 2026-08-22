@@ -69,8 +69,8 @@ export function SecretManager({ currentSceneId }) {
         {secrets.map(s => (
           <div key={s.id} className="continuity-card">
             <div className="continuity-card-header">
-              <strong>🔒 {s.secret_name}</strong>
-              <button onClick={() => handleDelete(s.id)} className="btn-icon danger">✕</button>
+              <strong>{s.secret_name}</strong>
+              <button onClick={() => handleDelete(s.id)} className="btn-sm btn-danger">删除</button>
             </div>
             <p className="card-desc">{s.secret_content}</p>
             <div className="tag-row">

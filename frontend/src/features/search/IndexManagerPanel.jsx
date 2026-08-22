@@ -31,7 +31,7 @@ export function IndexManagerPanel() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <h4>派生索引与缓存状态</h4>
         <button className="btn-primary" onClick={handleRebuildAll} disabled={rebuilding}>
-          {rebuilding ? '重建中...' : '🔄 从正典一键全量重建'}
+          {rebuilding ? '重建中...' : '从正典全量重建索引'}
         </button>
       </div>
 

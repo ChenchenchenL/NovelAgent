@@ -51,12 +51,12 @@ export function GraphRAGQueryPanel() {
           style={{ flex: 1 }}
         />
         <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? '分析中...' : '🔍 GraphRAG 查询'}
+          {loading ? '分析中...' : 'GraphRAG 查询'}
         </button>
       </form>
 
       {currentResult && (
-        <div className="continuity-card" style={{ marginBottom: '16px', background: '#1c222d' }}>
+        <div className="continuity-card" style={{ marginBottom: '16px', background: '#1c1936' }}>
           <div className="continuity-card-header">
             <strong>查询结果 ({currentResult.query_type}) - 耗时 {currentResult.duration_ms}ms (Tokens: {currentResult.token_cost})</strong>
             <span className="badge success">已关联 {currentResult.communities_used.length} 个社区</span>

@@ -53,8 +53,8 @@ export function ImportManagerModal({ onClose, onImportCompleted }) {
     <div className="modal-overlay">
       <div className="modal-content import-modal">
         <div className="modal-header">
-          <h3>📦 存量作品批量导入</h3>
-          <button className="btn-close" onClick={onClose}>×</button>
+          <h3>存量作品批量导入</h3>
+          <button className="btn-close" onClick={onClose}>✕</button>
         </div>
         {msg && <div className="notice-bar">{msg}</div>}
         <form onSubmit={handleStartImport} className="import-form">
@@ -66,7 +66,7 @@ export function ImportManagerModal({ onClose, onImportCompleted }) {
             <label>每批文件数：<input type="number" min="1" max="100" value={batchSize} onChange={(e) => setBatchSize(e.target.value)} /></label>
             <label><input type="checkbox" checked={autoExtract} onChange={(e) => setAutoExtract(e.target.checked)} /> 导入后自动逆向抽取</label>
           </div>
-          <button type="submit" className="btn-primary" disabled={loading}>{loading ? '启动中...' : '🚀 开始批量导入'}</button>
+          <button type="submit" className="btn-primary" disabled={loading}>{loading ? '启动中...' : '开始批量导入'}</button>
         </form>
         <div className="import-jobs-list">
           <h4>最近导入任务</h4>

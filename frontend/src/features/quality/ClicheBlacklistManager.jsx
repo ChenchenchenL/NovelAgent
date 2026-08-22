@@ -70,7 +70,7 @@ export function ClicheBlacklistManager() {
           <option value="GENERIC_TRANSITION">泛化转折</option>
           <option value="MODEL_QUIRK">模型口癖</option>
         </select>
-        <button type="submit" className="btn-primary">➕ 加入黑名单</button>
+        <button type="submit" className="btn-primary">加入黑名单</button>
       </form>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
@@ -85,8 +85,8 @@ export function ClicheBlacklistManager() {
       </div>
 
       {scanResults.length > 0 && (
-        <div className="continuity-card" style={{ marginBottom: '16px', background: '#2d2424' }}>
-          <h4>🚨 扫描命中 ({scanResults.length} 处)</h4>
+        <div className="continuity-card" style={{ marginBottom: '16px', background: '#251a24' }}>
+          <h4>扫描命中 ({scanResults.length} 处)</h4>
           {scanResults.map((r, i) => (
             <div key={i} style={{ marginTop: '4px', fontSize: '13px' }}>
               <span className="badge warning">{r.severity}</span> {r.description}
@@ -101,7 +101,7 @@ export function ClicheBlacklistManager() {
           <div key={c.id} className="continuity-card">
             <div className="continuity-card-header">
               <span><strong>{c.pattern}</strong> <span className="badge gray">[{c.pattern_type}] {c.category}</span></span>
-              <button className="btn-small" style={{ color: '#ff6b6b' }} onClick={() => handleDelete(c.id)}>删除</button>
+              <button className="btn-small btn-danger" onClick={() => handleDelete(c.id)}>删除</button>
             </div>
           </div>
         ))}

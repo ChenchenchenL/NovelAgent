@@ -39,7 +39,13 @@ export function useProject(setNotice) {
       setCurrentPath(selected.current_path)
       setNotice(`已授权目录：${selected.current_path}`)
     } catch (err) {
-      setNotice(err.message)
+      const manual = window.prompt('无法调起本地窗口选择器，请输入本地创作目录绝对路径（例如：/tmp/my_novel）：', currentPath || '/tmp/my_novel')
+      if (manual && manual.trim()) {
+        setCurrentPath(manual.trim())
+        setNotice(`已输入目录：${manual.trim()}，请点击【打开项目】`)
+      } else {
+        setNotice(err.message)
+      }
     }
   }
 

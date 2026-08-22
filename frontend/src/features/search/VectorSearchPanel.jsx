@@ -37,7 +37,7 @@ export function VectorSearchPanel() {
           <option value={20}>Top 20</option>
         </select>
         <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? '检索中...' : '🧬 向量检索'}
+          {loading ? '检索中...' : '向量检索'}
         </button>
       </form>
 

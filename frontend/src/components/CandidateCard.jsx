@@ -30,17 +30,17 @@ export function CandidateCard({ candidate, isSelected, onSelect, onDecide }) {
       <div className="candidate-card-actions" onClick={(e) => e.stopPropagation()}>
         {candidate.status !== 'CONFIRMED' && (
           <button className="btn-action-confirm" title="采纳为正典" onClick={() => onDecide(candidate.id, 'CONFIRM')}>
-            ✓ 确认
+            确认
           </button>
         )}
         {candidate.status !== 'REJECTED' && (
           <button className="btn-action-reject" title="拒绝此主张" onClick={() => onDecide(candidate.id, 'REJECT')}>
-            ✗ 拒绝
+            拒绝
           </button>
         )}
         {candidate.status !== 'DEFERRED' && (
           <button className="btn-action-defer" title="稍后处理" onClick={() => onDecide(candidate.id, 'DEFER')}>
-            ⏸ 延后
+            延后
           </button>
         )}
       </div>

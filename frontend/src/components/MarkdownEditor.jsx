@@ -43,11 +43,11 @@ export function MarkdownEditor({
       {banner}
       <div className="editor-toolbar">
         <div className="toolbar-group">
-          <button disabled={readOnly || !canUndo} onClick={onUndo} title="撤销 (Ctrl+Z)">↶ 撤销</button>
-          <button disabled={readOnly || !canRedo} onClick={onRedo} title="重做 (Ctrl+Shift+Z)">↷ 重做</button>
-          <button disabled={readOnly} onClick={onSnapshot} title="保存快照到本地数据库">📷 快照</button>
-          <button disabled={readOnly || !hasSnapshot} onClick={onRestore} title="从快照恢复草稿">↺ 恢复</button>
-          <button disabled={readOnly} onClick={onReset} title="清空工作区并与正典同步">⟲ 重置</button>
+          <button disabled={readOnly || !canUndo} onClick={onUndo} title="撤销 (Ctrl+Z)">撤销</button>
+          <button disabled={readOnly || !canRedo} onClick={onRedo} title="重做 (Ctrl+Shift+Z)">重做</button>
+          <button disabled={readOnly} onClick={onSnapshot} title="保存快照到本地数据库">快照</button>
+          <button disabled={readOnly || !hasSnapshot} onClick={onRestore} title="从快照恢复草稿">恢复</button>
+          <button disabled={readOnly} onClick={onReset} title="清空工作区并与正典同步">重置</button>
         </div>
         <div className="toolbar-status">
           {readOnly ? (

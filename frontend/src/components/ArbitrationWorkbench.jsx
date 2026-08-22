@@ -23,7 +23,7 @@ export function ArbitrationWorkbench({ sceneId }) {
     await batchDecide(lowRisk.map((c) => ({ id: c.id, decision: 'CONFIRM' })))
   }
 
-  const handleResolveConflict = async (conflictId, option) => {
+  const handleResolveConflict = async () => {
     setActiveConflict(null)
     await reload()
   }
@@ -33,13 +33,13 @@ export function ArbitrationWorkbench({ sceneId }) {
       <div className="arbitration-toolbar">
         <div className="toolbar-left">
           <button className="btn-primary" disabled={loading} onClick={() => runExtraction(true)}>
-            {loading ? '抽取中...' : '🔍 重新逆向抽取'}
+            {loading ? '抽取中...' : '重新逆向抽取'}
           </button>
           <button className="btn-secondary" onClick={handleAutoConfirmAllLowRisk}>
-            ✓ 一键采纳低风险主张
+            一键采纳低风险主张
           </button>
           <button className="btn-secondary" onClick={() => setShowAliasModal(true)}>
-            ⚡ 别名消歧库
+            别名消歧库
           </button>
         </div>
 
@@ -56,7 +56,7 @@ export function ArbitrationWorkbench({ sceneId }) {
 
       {conflicts.length > 0 && (
         <div className="conflict-banner">
-          ⚠️ 发现 {conflicts.length} 处硬逻辑冲突（点击解决）：
+          发现 {conflicts.length} 处逻辑冲突（点击解决）：
           {conflicts.map((conf) => (
             <button key={conf.id} className="conflict-tag-btn" onClick={() => setActiveConflict(conf)}>
               {conf.message}
