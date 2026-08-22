@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from . import (
+    agent_director_service,
+    autonomous_writer_service,
     beat_service,
     chapter_service,
     character_service,
@@ -40,6 +42,8 @@ from . import (
 )
 
 __all__ = [
+    "agent_director_service",
+    "autonomous_writer_service",
     "beat_service",
     "chapter_service",
     "character_service",

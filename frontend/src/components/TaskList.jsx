@@ -9,7 +9,7 @@ export function TaskList({ runs = [] }) {
     <div className="task-list-container">
       <div className="task-list-header" onClick={() => setExpanded(!expanded)}>
         <span>生成历史记录 ({runs.length})</span>
-        <span className="toggle-icon">{expanded ? '▲' : '▼'}</span>
+        <span className="toggle-icon">{expanded ? '收起' : '展开'}</span>
       </div>
 
       {expanded && (

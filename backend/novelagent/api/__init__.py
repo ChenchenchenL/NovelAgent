@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .dependencies import AppState
 from .routers import (
+    agent,
     beats,
     chapters,
     characters,
@@ -62,6 +63,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     # Register modular routers
     app.include_router(system.router)
+    app.include_router(agent.router)
     app.include_router(projects.router)
     app.include_router(chapters.router)
     app.include_router(scenes.router)

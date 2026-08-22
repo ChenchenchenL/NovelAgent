@@ -9,6 +9,7 @@ import { PreviewPanel } from './PreviewPanel'
 import { RevisionDiff } from './RevisionDiff'
 import { ConflictDialog } from './ConflictDialog'
 import { ArbitrationWorkbench } from './ArbitrationWorkbench'
+import { AgentThoughtStream } from '../features/agent/AgentThoughtStream'
 import { useWorkspace } from '../hooks/useWorkspace'
 import { useUndoRedo } from '../hooks/useUndoRedo'
 import { useGeneration } from '../hooks/useGeneration'
@@ -17,6 +18,7 @@ import { api } from '../api/client'
 export function SceneEditor({
   scene, tab, setTab, viewingRevision, setViewingRevision,
   revisions, busy, onChangeSceneStatus, onSaveScene, onViewRevision,
+  thoughtProcess,
 }) {
   const [diff, setDiff] = useState(null)
   const [conflict, setConflict] = useState(null)
@@ -64,6 +66,7 @@ export function SceneEditor({
         busy={busy} viewingRevision={viewingRevision} generating={gen.generating}
         onChangeSceneStatus={onChangeSceneStatus} onSave={handleSave} onGenerate={gen.startGeneration}
       />
+      <AgentThoughtStream thoughtProcess={thoughtProcess} />
       <GenerationProgress
         generating={gen.generating} statusText={gen.statusText}
         streamingText={gen.streamingText} onCancel={gen.cancelGeneration}

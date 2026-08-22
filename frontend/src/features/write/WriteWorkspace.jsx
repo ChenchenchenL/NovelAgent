@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { ChapterTree } from '../../components/ChapterTree'
+import { ChapterSidebar } from './ChapterSidebar'
 import { SceneBreadcrumb } from './SceneBreadcrumb'
 import { SceneEditorArea } from './SceneEditorArea'
 import { InspectorPanel } from './InspectorPanel'
 import { useWorkspace } from '../../hooks/useWorkspace'
 import { useUndoRedo } from '../../hooks/useUndoRedo'
-import { useGeneration } from '../../hooks/useGeneration'
 import { api } from '../../api/client'
 
 export function WriteWorkspace({
@@ -23,10 +22,10 @@ export function WriteWorkspace({
   onCreateScene,
   onSelectChapter,
   onSelectScene,
-  onChangeSceneStatus,
-  onChangeChapterStatus,
   onSaveScene,
   onViewRevision,
+  onOpenAutoPlan,
+  onRefreshTree,
 }) {
   const [tab, setTab] = useState('editor')
   const [diff, setDiff] = useState(null)
@@ -34,7 +33,6 @@ export function WriteWorkspace({
 
   const ws = useWorkspace(scene?.id, scene?.content || '')
   const ur = useUndoRedo()
-  const gen = useGeneration(scene?.id, (content) => content && ws.onDraftChange(content))
 
   useEffect(() => { ur.resetStacks() }, [scene?.id])
 
@@ -55,24 +53,36 @@ export function WriteWorkspace({
     }
   }
 
-  const handleApplyStreaming = (text) => {
-    if (!text) return
-    const updated = ws.draftContent ? `${ws.draftContent}\n\n${text}` : text
-    handleContentChange(updated, updated.length)
+  const handleSceneUpdated = (res) => {
+    if (res?.content) handleContentChange(res.content, res.content.length)
+  }
+
+  const handleAdvanced = async () => {
+    try {
+      const res = await api.autoAdvanceScene()
+      if (res?.scene_id) {
+        await onSelectScene(res.scene_id)
+        if (res.content) handleContentChange(res.content, res.content.length)
+        if (onRefreshTree) await onRefreshTree()
+      }
+    } catch (err) {
+      alert(`自动推进失败: ${err.message}`)
+    }
   }
 
   return (
     <div className="write-workspace-grid">
-      <ChapterTree
+      <ChapterSidebar
         tree={tree} project={project}
         selectedChapterId={selectedChapterId} selectedSceneId={scene?.id}
         onCreateVolume={onCreateVolume} onCreateChapter={onCreateChapter} onCreateScene={onCreateScene}
         onSelectChapter={onSelectChapter} onSelectScene={onSelectScene}
+        onOpenAutoPlan={onOpenAutoPlan}
       />
       <section className="writing-canvas-panel">
         <SceneBreadcrumb
           scene={scene} activeTab={tab} onTabChange={setTab}
-          revisionsCount={revisions.length} onChangeSceneStatus={onChangeSceneStatus}
+          draftContent={ws.draftContent} revisionsCount={revisions.length}
           onSaveScene={handleSave} busy={busy} viewingRevision={viewingRevision}
         />
         <SceneEditorArea
@@ -87,15 +97,14 @@ export function WriteWorkspace({
           onSnapshot={ws.takeSnapshot} onRestore={ws.restoreSnapshot} onReset={ws.resetWorkspace}
           onRetrySave={() => ws.saveWorkspace(ws.draftContent)}
           onViewRevision={onViewRevision}
-          onDiffRevision={async (revId, againstId) => scene?.id && setDiff(await api.getDiff(scene.id, revId, againstId))}
+          onDiffRevision={async (rId, aId) => scene?.id && setDiff(await api.getDiff(scene.id, rId, aId))}
         />
       </section>
       <InspectorPanel
-        scene={scene} selectedChapter={selectedChapter}
-        generating={gen.generating} statusText={gen.statusText}
-        streamingText={gen.streamingText} runs={gen.runs}
-        onStartGeneration={gen.startGeneration} onCancelGeneration={gen.cancelGeneration}
-        onApplyStreaming={handleApplyStreaming} onChangeChapterStatus={onChangeChapterStatus}
+        scene={scene}
+        onApplyStreaming={(text) => handleContentChange(ws.draftContent ? `${ws.draftContent}\n\n${text}` : text)}
+        onSceneContentUpdated={handleSceneUpdated}
+        onAdvanceCompleted={handleAdvanced}
       />
     </div>
   )

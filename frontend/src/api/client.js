@@ -281,5 +281,11 @@ export const api = {
   getFeedbackOptimizationStats: () => request('/api/feedback-optimization/stats'),
   getFeedbackOptimizationSuggestions: () => request('/api/feedback-optimization/suggestions'),
   applyFeedbackOptimization: (data) => request('/api/feedback-optimization/apply', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Autonomous Agent Creation & Director APIs
+  autoPlanNovel: (data) => request('/api/agent/auto-plan', { method: 'POST', body: JSON.stringify(data) }),
+  autoWriteScene: (data) => request('/api/agent/auto-write-scene', { method: 'POST', body: JSON.stringify(data) }),
+  autoAdvanceScene: (data = {}) => request('/api/agent/auto-advance', { method: 'POST', body: JSON.stringify(data) }),
+  directorChat: (data) => request('/api/agent/director-chat', { method: 'POST', body: JSON.stringify(data) }),
 }
 

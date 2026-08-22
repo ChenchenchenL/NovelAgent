@@ -1,41 +1,27 @@
 import React, { useState } from 'react'
-import { CommunityManager } from '../features/global/CommunityManager'
 import { GraphRAGQueryPanel } from '../features/global/GraphRAGQueryPanel'
+import { CommunityManager } from '../features/global/CommunityManager'
 import { GlobalAuditPanel } from '../features/global/GlobalAuditPanel'
 import { ModelStatsDashboard } from '../features/global/ModelStatsDashboard'
 import { FeedbackOptimizerPanel } from '../features/global/FeedbackOptimizerPanel'
 
-export function GlobalIntelligenceModal({ isOpen, onClose }) {
+export function GlobalIntelligenceModal({ onClose }) {
   const [activeTab, setActiveTab] = useState('graphrag')
-
-  if (!isOpen) return null
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content continuity-modal" style={{ width: '920px', maxWidth: '95vw', height: '85vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="modal-content global-modal" style={{ width: '960px', maxWidth: '95vw', height: '85vh', display: 'flex', flexDirection: 'column' }}>
         <div className="modal-header">
-          <h3>🌐 GraphRAG、逻辑社区与全书智能回顾</h3>
-          <button className="btn-small" onClick={onClose}>✕</button>
+          <h3>全局智能与全书分析 (GraphRAG, Communities & Audits)</h3>
+          <button className="btn-close" onClick={onClose}>✕</button>
         </div>
-
         <div className="continuity-tabs">
-          <button className={`tab-btn ${activeTab === 'graphrag' ? 'active' : ''}`} onClick={() => setActiveTab('graphrag')}>
-            🔍 GraphRAG 查询
-          </button>
-          <button className={`tab-btn ${activeTab === 'communities' ? 'active' : ''}`} onClick={() => setActiveTab('communities')}>
-            🏘️ 逻辑社区与摘要
-          </button>
-          <button className={`tab-btn ${activeTab === 'audit' ? 'active' : ''}`} onClick={() => setActiveTab('audit')}>
-            📊 全书深度回顾
-          </button>
-          <button className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>
-            📈 模型统计与成本
-          </button>
-          <button className={`tab-btn ${activeTab === 'feedback_opt' ? 'active' : ''}`} onClick={() => setActiveTab('feedback_opt')}>
-            🎯 反馈优化与去噪
-          </button>
+          <button className={`tab-btn ${activeTab === 'graphrag' ? 'active' : ''}`} onClick={() => setActiveTab('graphrag')}>GraphRAG多跳查询</button>
+          <button className={`tab-btn ${activeTab === 'communities' ? 'active' : ''}`} onClick={() => setActiveTab('communities')}>逻辑社区与摘要</button>
+          <button className={`tab-btn ${activeTab === 'audit' ? 'active' : ''}`} onClick={() => setActiveTab('audit')}>全书断裂审计</button>
+          <button className={`tab-btn ${activeTab === 'stats' ? 'active' : ''}`} onClick={() => setActiveTab('stats')}>Token与成本治理</button>
+          <button className={`tab-btn ${activeTab === 'feedback_opt' ? 'active' : ''}`} onClick={() => setActiveTab('feedback_opt')}>反馈规则调优</button>
         </div>
-
         <div className="continuity-body" style={{ flex: 1, overflowY: 'auto' }}>
           {activeTab === 'graphrag' && <GraphRAGQueryPanel />}
           {activeTab === 'communities' && <CommunityManager />}

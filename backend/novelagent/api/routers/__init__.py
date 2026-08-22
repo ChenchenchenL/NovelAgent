@@ -1,5 +1,5 @@
-"""API Routers package."""
 from . import (
+    agent,
     beats,
     chapters,
     characters,
@@ -37,6 +37,7 @@ from . import (
 )
 
 __all__ = [
+    "agent",
     "beats",
     "chapters",
     "characters",

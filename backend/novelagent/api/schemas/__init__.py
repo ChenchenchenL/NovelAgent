@@ -1,5 +1,14 @@
 from __future__ import annotations
 
+from .agent import (
+    AgentAutoAdvanceRequest,
+    AgentAutoPlanRequest,
+    AgentAutoPlanResponse,
+    AgentAutoWriteRequest,
+    AgentAutoWriteResponse,
+    AgentDirectorChatRequest,
+    AgentDirectorChatResponse,
+)
 from .base import (
     ChapterCreate,
     ChapterDetailView,

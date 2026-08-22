@@ -5,11 +5,13 @@ import { ArbitrationWorkbench } from '../../components/ArbitrationWorkbench'
 import { RevisionHistory } from '../../components/RevisionHistory'
 import { RevisionDiff } from '../../components/RevisionDiff'
 import { ConflictDialog } from '../../components/ConflictDialog'
+import { AgentThoughtStream } from '../agent/AgentThoughtStream'
 
 export function SceneEditorArea({
   scene,
   activeTab,
   draftContent,
+  thoughtProcess,
   viewingRevision,
   setViewingRevision,
   isSaving,
@@ -41,6 +43,7 @@ export function SceneEditorArea({
 
   return (
     <div className="scene-editor-canvas">
+      {thoughtProcess && <AgentThoughtStream thoughtProcess={thoughtProcess} />}
       {activeTab === 'editor' && (
         <MarkdownEditor
           draftContent={viewingRevision ? viewingRevision.content : draftContent}

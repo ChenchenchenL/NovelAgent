@@ -29,7 +29,7 @@ export function AliasManager({ onClose }) {
             placeholder="别名/昵称/代号 (如: 阿明)"
             onChange={(e) => setAlias(e.target.value)}
           />
-          <span>➔ 映射到正典名</span>
+          <span>映射到正典名:</span>
           <input
             value={canonical}
             placeholder="正典标准名 (如: 王明)"
@@ -51,7 +51,7 @@ export function AliasManager({ onClose }) {
             aliases.map((item) => (
               <div key={item.id} className="alias-item">
                 <span className="alias-tag">{item.alias_name}</span>
-                <span className="alias-arrow">➔</span>
+                <span className="alias-arrow">-&gt;</span>
                 <strong className="canonical-tag">{item.canonical_name}</strong>
                 <span className="alias-type-badge">[{item.alias_type}]</span>
                 <button className="btn-del-alias" onClick={() => removeAlias(item.id)}>删除</button>

@@ -4,7 +4,8 @@ export function AppHeader({
   projectName,
   currentPath,
   selectedSceneTitle,
-  onOpenSettings,
+  onOpenProjectSettings,
+  onOpenOutlineModal,
   onQuickSave,
   canSave,
   isSaving,
@@ -14,14 +15,20 @@ export function AppHeader({
   return (
     <header className="app-header">
       <div className="header-left">
-        <div className="project-badge" title={`创作目录: ${currentPath || '未绑定'}`}>
-          <span className="project-name">{projectName || '未命名小说项目'}</span>
-          <span className="project-path-tag">{dirName}</span>
+        <span className="brand-title">NovelAgent</span>
+        <span className="header-divider">/</span>
+        <div
+          className="project-badge"
+          onClick={onOpenProjectSettings}
+          title={`点击切换小说目录 (当前: ${currentPath || '未绑定'})`}
+        >
+          <span>{projectName || '我的小说'}</span>
+          <span className="project-path-tag">({dirName})</span>
         </div>
         {selectedSceneTitle && (
           <div className="header-scene-pill">
             <span className="pill-dot"></span>
-            <span className="pill-text">{selectedSceneTitle}</span>
+            <span>{selectedSceneTitle}</span>
           </div>
         )}
       </div>
@@ -29,31 +36,30 @@ export function AppHeader({
       <div className="header-center">
         <div className="header-status-indicator">
           {isSaving ? (
-            <span className="status-saving-badge">同步中...</span>
+            <span className="status-saving-badge">正在自动保存...</span>
           ) : (
-            <span className="status-ready-badge">正典一致</span>
+            <span className="status-ready-badge">正典已同步</span>
           )}
         </div>
       </div>
 
       <div className="header-right">
+        <button className="btn-sm" onClick={onOpenOutlineModal} title="查看与调整全书大纲与设定">
+          故事大纲与设定
+        </button>
+        <button className="btn-sm" onClick={onOpenProjectSettings} title="切换或新建小说项目文件夹">
+          切换项目
+        </button>
         {canSave && (
           <button
-            className="btn-header-action primary"
+            className="btn-header-action btn-blue"
             onClick={onQuickSave}
             disabled={isSaving}
-            title="将当前草稿采纳为不可变正典版本"
+            title="保存当前正文为不可变正典版本"
           >
-            {isSaving ? '提交中...' : '提交正典'}
+            {isSaving ? '保存中...' : '保存正典'}
           </button>
         )}
-        <button
-          className="btn-header-icon"
-          onClick={onOpenSettings}
-          title="系统配置"
-        >
-          设置
-        </button>
       </div>
     </header>
   )

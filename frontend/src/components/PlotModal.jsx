@@ -4,36 +4,27 @@ import { ForeshadowingManager } from '../features/plot/ForeshadowingManager'
 import { TransitionInspector } from '../features/plot/TransitionInspector'
 import { ImpactGraphViewer } from '../features/plot/ImpactGraphViewer'
 
-export function PlotModal({ isOpen, onClose, currentSceneId }) {
-  const [tab, setTab] = useState('threads')
-
-  if (!isOpen) return null
+export function PlotModal({ onClose, currentSceneId }) {
+  const [activeTab, setActiveTab] = useState('threads')
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content continuity-modal" onClick={e => e.stopPropagation()}>
+    <div className="modal-overlay">
+      <div className="modal-content plot-modal" style={{ width: '900px', maxWidth: '92vw', height: '80vh', display: 'flex', flexDirection: 'column' }}>
         <div className="modal-header">
-          <div className="modal-tabs">
-            <button className={`tab-btn ${tab === 'threads' ? 'active' : ''}`} onClick={() => setTab('threads')}>
-              📈 剧情线 & 事件
-            </button>
-            <button className={`tab-btn ${tab === 'foreshadowings' ? 'active' : ''}`} onClick={() => setTab('foreshadowings')}>
-              🪝 伏笔生命周期
-            </button>
-            <button className={`tab-btn ${tab === 'transitions' ? 'active' : ''}`} onClick={() => setTab('transitions')}>
-              🔍 场景过渡检查
-            </button>
-            <button className={`tab-btn ${tab === 'impact' ? 'active' : ''}`} onClick={() => setTab('impact')}>
-              🕸️ Impact Graph
-            </button>
-          </div>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <h3>大纲与剧情规划 (Plot Threads, Foreshadowing & Impact)</h3>
+          <button className="btn-close" onClick={onClose}>✕</button>
         </div>
-        <div className="modal-body">
-          {tab === 'threads' && <PlotThreadManager currentSceneId={currentSceneId} />}
-          {tab === 'foreshadowings' && <ForeshadowingManager currentSceneId={currentSceneId} />}
-          {tab === 'transitions' && <TransitionInspector currentSceneId={currentSceneId} />}
-          {tab === 'impact' && <ImpactGraphViewer currentSceneId={currentSceneId} />}
+        <div className="continuity-tabs">
+          <button className={`tab-btn ${activeTab === 'threads' ? 'active' : ''}`} onClick={() => setActiveTab('threads')}>剧情线事件</button>
+          <button className={`tab-btn ${activeTab === 'foreshadowings' ? 'active' : ''}`} onClick={() => setActiveTab('foreshadowings')}>伏笔调度</button>
+          <button className={`tab-btn ${activeTab === 'transitions' ? 'active' : ''}`} onClick={() => setActiveTab('transitions')}>场景过渡连续性</button>
+          <button className={`tab-btn ${activeTab === 'impact' ? 'active' : ''}`} onClick={() => setActiveTab('impact')}>影响图传播</button>
+        </div>
+        <div className="continuity-body" style={{ flex: 1, overflowY: 'auto' }}>
+          {activeTab === 'threads' && <PlotThreadManager currentSceneId={currentSceneId} />}
+          {activeTab === 'foreshadowings' && <ForeshadowingManager currentSceneId={currentSceneId} />}
+          {activeTab === 'transitions' && <TransitionInspector currentSceneId={currentSceneId} />}
+          {activeTab === 'impact' && <ImpactGraphViewer currentSceneId={currentSceneId} />}
         </div>
       </div>
     </div>

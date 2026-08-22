@@ -1,72 +1,50 @@
 import React, { useState } from 'react'
-import { AiCopilotTab } from './tabs/AiCopilotTab'
-import { SceneBeatsTab } from './tabs/SceneBeatsTab'
-import { ContextTab } from './tabs/ContextTab'
-import { ChapterTab } from './tabs/ChapterTab'
+import { AiWriteTab } from './tabs/AiWriteTab'
+import { AiBrainstormTab } from './tabs/AiBrainstormTab'
+import { CharacterQuickTab } from './tabs/CharacterQuickTab'
 
 export function InspectorPanel({
   scene,
-  selectedChapter,
-  generating,
-  statusText,
-  streamingText,
-  runs,
-  onStartGeneration,
-  onCancelGeneration,
   onApplyStreaming,
-  onChangeChapterStatus,
+  onSceneContentUpdated,
+  onAdvanceCompleted,
 }) {
-  const [activeTab, setActiveTab] = useState('copilot')
+  const [activeTab, setActiveTab] = useState('write')
 
   return (
     <aside className="inspector-panel">
       <div className="inspector-tabs-header">
         <button
-          className={`inspector-tab-btn ${activeTab === 'copilot' ? 'active' : ''}`}
-          onClick={() => setActiveTab('copilot')}
+          className={`inspector-tab-btn ${activeTab === 'write' ? 'active' : ''}`}
+          onClick={() => setActiveTab('write')}
         >
-          辅助推演
+          AI 创作
         </button>
         <button
-          className={`inspector-tab-btn ${activeTab === 'beats' ? 'active' : ''}`}
-          onClick={() => setActiveTab('beats')}
+          className={`inspector-tab-btn ${activeTab === 'brainstorm' ? 'active' : ''}`}
+          onClick={() => setActiveTab('brainstorm')}
         >
-          节拍契约
+          情节构思
         </button>
         <button
-          className={`inspector-tab-btn ${activeTab === 'context' ? 'active' : ''}`}
-          onClick={() => setActiveTab('context')}
+          className={`inspector-tab-btn ${activeTab === 'chars' ? 'active' : ''}`}
+          onClick={() => setActiveTab('chars')}
         >
-          连续性
-        </button>
-        <button
-          className={`inspector-tab-btn ${activeTab === 'chapter' ? 'active' : ''}`}
-          onClick={() => setActiveTab('chapter')}
-        >
-          章节流转
+          登场人物
         </button>
       </div>
 
       <div className="inspector-body">
-        {activeTab === 'copilot' && (
-          <AiCopilotTab
-            generating={generating}
-            statusText={statusText}
-            streamingText={streamingText}
-            runs={runs}
-            onStartGeneration={onStartGeneration}
-            onCancelGeneration={onCancelGeneration}
+        {activeTab === 'write' && (
+          <AiWriteTab
+            scene={scene}
             onApplyStreaming={onApplyStreaming}
+            onSceneContentUpdated={onSceneContentUpdated}
+            onAdvanceCompleted={onAdvanceCompleted}
           />
         )}
-        {activeTab === 'beats' && <SceneBeatsTab scene={scene} />}
-        {activeTab === 'context' && <ContextTab scene={scene} />}
-        {activeTab === 'chapter' && (
-          <ChapterTab
-            selectedChapter={selectedChapter}
-            onChangeChapterStatus={onChangeChapterStatus}
-          />
-        )}
+        {activeTab === 'brainstorm' && <AiBrainstormTab scene={scene} />}
+        {activeTab === 'chars' && <CharacterQuickTab />}
       </div>
     </aside>
   )
