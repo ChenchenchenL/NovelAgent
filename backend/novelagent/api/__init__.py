@@ -13,16 +13,21 @@ from .routers import (
     characters,
     claims,
     cliches,
+    communities,
     context_packs,
     feedback,
+    feedback_optimization,
     foreshadowings,
     generation,
+    global_analysis,
+    graphrag,
     impact,
     imports,
     indexes,
     items,
     kg,
     locations,
+    model_stats,
     patches,
     plots,
     projects,
@@ -80,6 +85,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(voices.router)
     app.include_router(quality.router)
     app.include_router(feedback.router)
+    app.include_router(communities.router)
+    app.include_router(graphrag.router)
+    app.include_router(global_analysis.router)
+    app.include_router(model_stats.router)
+    app.include_router(feedback_optimization.router)
     app.include_router(workspaces.router)
     app.include_router(patches.router)
     app.include_router(claims.router)

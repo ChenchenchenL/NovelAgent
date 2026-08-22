@@ -76,6 +76,18 @@ from .generation import (
     GenerationRunView,
     ModelSettingsRequest,
 )
+from .graphrag import (
+    CommunityCreate,
+    CommunityResponse,
+    CommunitySummaryResponse,
+    CommunityUpdate,
+    FeedbackOptimizationApplyRequest,
+    GlobalAnalysisReportResponse,
+    GraphRAGQueryCreate,
+    GraphRAGQueryResponse,
+    ModelStatsDailyResponse,
+    ModelStatsSummaryResponse,
+)
 from .imports import (
     ImportCheckpointView,
     ImportJobCreate,

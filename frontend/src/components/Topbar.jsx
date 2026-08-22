@@ -11,6 +11,7 @@ export function Topbar({
   onOpenPlot,
   onOpenSearch,
   onOpenQuality,
+  onOpenGlobal,
 }) {
   return (
     <header className="topbar">
@@ -19,6 +20,9 @@ export function Topbar({
         <h1>NovelAgent</h1>
       </div>
       <div className="topbar-right">
+        <button className="btn-small" onClick={onOpenGlobal}>
+          🌐 全局智能与GraphRAG
+        </button>
         <button className="btn-small" onClick={onOpenQuality}>
           🛡️ 质控与声音
         </button>

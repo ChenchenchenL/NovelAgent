@@ -12,6 +12,7 @@ import { ContinuityModal } from './components/ContinuityModal'
 import { PlotModal } from './components/PlotModal'
 import { SearchModal } from './components/SearchModal'
 import { QualityModal } from './components/QualityModal'
+import { GlobalIntelligenceModal } from './components/GlobalIntelligenceModal'
 import { Topbar } from './components/Topbar'
 import { useProject } from './hooks/useProject'
 import { useScene } from './hooks/useScene'
@@ -30,6 +31,7 @@ export default function App() {
   const [showPlotModal, setShowPlotModal] = useState(false)
   const [showSearchModal, setShowSearchModal] = useState(false)
   const [showQualityModal, setShowQualityModal] = useState(false)
+  const [showGlobalModal, setShowGlobalModal] = useState(false)
 
   useSession(setNotice)
   const projectState = useProject(setNotice)
@@ -87,6 +89,7 @@ export default function App() {
         onOpenPlot={() => setShowPlotModal(true)}
         onOpenSearch={() => setShowSearchModal(true)}
         onOpenQuality={() => setShowQualityModal(true)}
+        onOpenGlobal={() => setShowGlobalModal(true)}
       />
       {showModelConfig ? (
         <ModelConfigPanel />
@@ -156,6 +159,12 @@ export default function App() {
           isOpen={showQualityModal}
           onClose={() => setShowQualityModal(false)}
           currentSceneId={sceneState.scene?.id}
+        />
+      )}
+      {showGlobalModal && (
+        <GlobalIntelligenceModal
+          isOpen={showGlobalModal}
+          onClose={() => setShowGlobalModal(false)}
         />
       )}
     </main>

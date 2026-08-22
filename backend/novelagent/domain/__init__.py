@@ -52,6 +52,20 @@ from .rules import (
     validate_item_transition,
     validate_scene_status_transition,
 )
+from .graphrag_models import (
+    Community,
+    CommunitySummary,
+    GlobalAnalysisReport,
+    GraphRAGQuery,
+    ModelStatsDaily,
+)
+from .graphrag_rules import (
+    analyze_character_arc,
+    analyze_foreshadow_fulfillment,
+    analyze_plot_ruptures,
+    calculate_feedback_optimization_suggestions,
+    detect_logical_communities,
+)
 from .quality_models import (
     AuthorFeedback,
     BeatContract,
@@ -88,9 +102,13 @@ __all__ = [
     "ClaimCandidate",
     "ClicheBlacklist",
     "CommitJournal",
+    "Community",
+    "CommunitySummary",
     "FTSDocument",
     "Foreshadowing",
     "GenerationRun",
+    "GlobalAnalysisReport",
+    "GraphRAGQuery",
     "IdentityHypothesis",
     "IdentityRevealEvent",
     "ImpactEdge",
@@ -105,6 +123,7 @@ __all__ = [
     "KGNode",
     "LocationEntity",
     "ModelInvocation",
+    "ModelStatsDaily",
     "MovementEvent",
     "NarrativeSecret",
     "PlotEvent",

@@ -248,5 +248,38 @@ export const api = {
   },
   createAuthorFeedback: (data) => request('/api/author-feedback', { method: 'POST', body: JSON.stringify(data) }),
   getAuthorFeedbackStats: () => request('/api/author-feedback/stats'),
+
+  // Stage 10: Communities, GraphRAG, Global Analysis, Model Stats & Optimization
+  getCommunities: (communityType) => request(`/api/communities${communityType ? `?community_type=${communityType}` : ''}`),
+  createCommunity: (data) => request('/api/communities', { method: 'POST', body: JSON.stringify(data) }),
+  autoDetectCommunities: () => request('/api/communities/auto-detect', { method: 'POST' }),
+  getCommunity: (id) => request(`/api/communities/${id}`),
+  updateCommunity: (id, data) => request(`/api/communities/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteCommunity: (id) => request(`/api/communities/${id}`, { method: 'DELETE' }),
+  getCommunitySummaries: (id) => request(`/api/communities/${id}/summaries`),
+  generateCommunitySummary: (id, type = 'OVERVIEW') => request(`/api/communities/${id}/summaries/generate?summary_type=${type}`, { method: 'POST' }),
+
+  queryGraphrag: (data) => request('/api/graphrag/query', { method: 'POST', body: JSON.stringify(data) }),
+  getGraphragQueries: (type) => request(`/api/graphrag/queries${type ? `?query_type=${type}` : ''}`),
+  getGraphragQuery: (id) => request(`/api/graphrag/queries/${id}`),
+  retryGraphragQuery: (id) => request(`/api/graphrag/queries/${id}/retry`, { method: 'POST' }),
+
+  runCharacterArcsAnalysis: () => request('/api/global-analysis/character-arcs', { method: 'POST' }),
+  runRelationshipNetworkAnalysis: () => request('/api/global-analysis/relationship-network', { method: 'POST' }),
+  runForeshadowAudit: () => request('/api/global-analysis/foreshadow-audit', { method: 'POST' }),
+  runPlotRuptureAudit: () => request('/api/global-analysis/plot-rupture', { method: 'POST' }),
+  getGlobalAnalysisReports: (type) => request(`/api/global-analysis/reports${type ? `?report_type=${type}` : ''}`),
+  getGlobalAnalysisReport: (id) => request(`/api/global-analysis/reports/${id}`),
+
+  getModelStatsSummary: () => request('/api/model-stats/summary'),
+  getModelStatsDaily: () => request('/api/model-stats/daily'),
+  getModelStatsByModel: () => request('/api/model-stats/by-model'),
+  getModelStatsByTask: () => request('/api/model-stats/by-task'),
+  getModelStatsDegradation: () => request('/api/model-stats/degradation'),
+  aggregateModelStats: () => request('/api/model-stats/aggregate', { method: 'POST' }),
+
+  getFeedbackOptimizationStats: () => request('/api/feedback-optimization/stats'),
+  getFeedbackOptimizationSuggestions: () => request('/api/feedback-optimization/suggestions'),
+  applyFeedbackOptimization: (data) => request('/api/feedback-optimization/apply', { method: 'POST', body: JSON.stringify(data) }),
 }
 
